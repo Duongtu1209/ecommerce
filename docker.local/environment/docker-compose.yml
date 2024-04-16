@@ -1,0 +1,108 @@
+version: "3.7"
+
+services:
+  nginx:
+    image: rogerdz/nginx
+    labels:
+      - traefik.enable=true
+
+      # HTTP traffic
+      - traefik.http.routers.nginx-${COMPOSE_PROJECT_NAME}.rule=Host(`${VIRTUAL_HOST}`) || Host(`${VIRTUAL_HOST_BE}`)
+      - traefik.http.routers.nginx-${COMPOSE_PROJECT_NAME}.entrypoints=http
+
+      # HTTPS traffic
+      - traefik.http.routers.nginx-${COMPOSE_PROJECT_NAME}-https.rule=Host(`${VIRTUAL_HOST}`) || Host(`${VIRTUAL_HOST_BE}`)
+      - traefik.http.routers.nginx-${COMPOSE_PROJECT_NAME}-https.entrypoints=https
+      - traefik.http.services.nginx-${COMPOSE_PROJECT_NAME}-https.loadbalancer.server.port=80
+
+      # Redirect all http requests to https
+      - traefik.http.routers.nginx-${COMPOSE_PROJECT_NAME}.middlewares=https-redirect@file
+    networks:
+      proxy:
+      internal:
+        aliases:
+          - ${VIRTUAL_HOST}
+          - ${VIRTUAL_HOST_BE}
+    environment:
+      VIRTUAL_HOST: ${VIRTUAL_HOST} ${VIRTUAL_HOST_BE}
+      VIRTUAL_HOST_FRONTEND: ${VIRTUAL_HOST}
+      VIRTUAL_HOST_BE: ${VIRTUAL_HOST_BE}
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template
+      - ssl-certs:/etc/nginx/ssl
+    restart: unless-stopped
+    depends_on:
+      - node
+  node:
+    image: rogerdz/node:20
+    environment:
+      UID: ${UID}
+      GID: ${GID}
+    volumes:
+      - ${WORK_DIR}:/app:cached
+      - /usr/local/share/node-certificates:/usr/local/share/node-certificates
+    working_dir: /app
+    # command: yarn dev
+    tty: true
+    init: true
+    hostname: ${COMPOSE_PROJECT_NAME}-docker
+    restart: unless-stopped
+    external_links:
+      - "nginx:${VIRTUAL_HOST_BE}"
+    networks:
+      - internal
+  nodebe:
+    image: rogerdz/node:20
+    environment:
+      UID: ${UID}
+      GID: ${GID}
+    volumes:
+      - ${WORK_DIR_BE}:/app:cached
+      - /usr/local/share/up-certificates:/usr/local/share/up-certificates
+    working_dir: /app
+    # command: yarn dev
+    tty: true
+    init: true
+    hostname: ${COMPOSE_PROJECT_NAME}-docker
+    restart: unless-stopped
+    external_links:
+      - "nginx:${VIRTUAL_HOST}"
+    networks:
+      - internal
+  db:
+    image: mongo:latest
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    volumes:
+      - msqldata:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ecm
+      MONGO_INITDB_ROOT_PASSWORD: ecm
+    ports:
+      - "6543:6543"
+    networks:
+      - internal
+  adminer:
+    image: adminer:latest
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - 91:8080
+    depends_on:
+      - db
+    networks:
+      - internal
+
+networks:
+  proxy:
+    external: true
+  db:
+    external: true
+  internal:
+    driver: bridge
+
+volumes:
+  msqldata:
+  ssl-certs:
+    external: true
