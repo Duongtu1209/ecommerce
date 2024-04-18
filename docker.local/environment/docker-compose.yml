@@ -70,17 +70,20 @@ services:
     networks:
       - internal
   db:
-    image: mongo:latest
+    image: postgres:16
     restart: always
     # set shared memory limit when using docker-compose
     shm_size: 128mb
     volumes:
-      - msqldata:/data/db
+#      - ./postgresql.conf:/etc/postgresql.conf
+      - psqldata:/var/lib/postgresql/data
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ecm
-      MONGO_INITDB_ROOT_PASSWORD: ecm
+      POSTGRES_USER: ecm
+      POSTGRES_PASSWORD: ecm
+      POSTGRES_DB: ecm
+      PGDATA: /var/lib/postgresql/data
     ports:
-      - "6543:6543"
+      - '5432:5432'
     networks:
       - internal
   adminer:
@@ -88,7 +91,7 @@ services:
     environment:
       ADMINER_DEFAULT_SERVER: db
     ports:
-      - 91:8080
+      - 89:8080
     depends_on:
       - db
     networks:
@@ -103,6 +106,6 @@ networks:
     driver: bridge
 
 volumes:
-  msqldata:
+  psqldata:
   ssl-certs:
     external: true
