@@ -7,7 +7,7 @@ export const WrapperHeader = styled(Row)`
     align-items: center;
     gap: 16px;
     flex-wrap: nowrap;
-    width: 1270px;
+    width: 1400px;
     padding: 10px 0;
 `
 
