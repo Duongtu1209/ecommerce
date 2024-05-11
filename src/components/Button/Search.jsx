@@ -12,7 +12,7 @@ const Search = (props) => {
   } = props
 
   return (
-    <div style={{ display: 'flex', }}>
+    <div style={{ display: 'flex', gap: 12 }}>
       <InputComponent
         size={size}
         placeholder={placeholder}

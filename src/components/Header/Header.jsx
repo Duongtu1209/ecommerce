@@ -25,7 +25,7 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
             />
           </Col>
         )}
-        <Col span={6} style={{ display: 'flex', gap: '54px', alignItems: 'center' }}>
+        <Col span={6} style={{ display: 'flex', gap: '54px', alignItems: 'center', justifyContent: 'flex-end' }}>
             <WrapperHeaderAccout>
                 <UserOutlined style={{ fontSize: '30px' }} />
                 <div style={{ cursor: 'pointer' }}>
