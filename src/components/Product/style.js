@@ -5,7 +5,7 @@ export const WrapperType = styled.div`
   cursor: pointer;
   &:hover {
     background-color: var(--primary-color);
-    color: #fff;
+    color: black;
     border-radius: 4px;
   }
-`
+`;
