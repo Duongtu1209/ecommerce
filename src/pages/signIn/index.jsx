@@ -1,12 +1,61 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { WrapperContainerLeft, WrapperContainerRight } from "./style";
 import InputFormComponent from "../../components/InputForm/InputForm";
 import ButtonComponent from "../../components/Button/Button";
 import { Image } from "antd";
 import logoLogin from "../../assets/images/logo-login.png";
+import { useNavigate } from "react-router-dom";
+import * as UserService from "../../services/UserService";
+import { useMutationHook } from "../../hooks/useMutationHook";
+import Loading from "../../components/Loading/Loading";
+import { jwtDecode } from "jwt-decode";
 
 const SignIn = () => {
-  const { isShowPassword, setIsShowPassword } = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const handleNavigateSignUp = () => {
+    navigate("/sign-up");
+  };
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleOnChangeEmail = (value) => {
+    setEmail(value);
+  };
+  const handleOnChangePassword = (value) => {
+    setPassword(value);
+  };
+
+  const handleSignIn = () => {
+    mutation.mutate({
+      email,
+      password,
+    });
+  };
+
+  const mutation = useMutationHook((data) => UserService.loginUser(data));
+
+  const { data, isPending, isSuccess } = mutation;
+
+  useEffect(() => {
+    if (isSuccess) {
+      // navigate("/");
+      localStorage.setItem("access_token", data?.access_token);
+      if (data?.access_token) {
+        const decoded = jwtDecode(data?.access_token);
+        if (decoded?.id) {
+          handleGetDetailsUser(decoded?.id, data?.access_token);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess]);
+
+  const handleGetDetailsUser = async (id, token) => {
+    const res = await UserService.getDetailsUser(id, token);
+  };
+
   return (
     <div
       style={{
@@ -39,33 +88,54 @@ const SignIn = () => {
           </div>
 
           <div className="input">
-            <InputFormComponent placeholder="acb@email.com" />
+            <InputFormComponent
+              placeholder="acb@email.com"
+              value={email}
+              handleOnChange={handleOnChangeEmail}
+            />
           </div>
           <div className="input">
             <InputFormComponent
               placeholder="Mật khẩu"
+              value={password}
+              handleOnChange={handleOnChangePassword}
               type={isShowPassword ? "text" : "password"}
             />
-            <span className="show-pass">{isShowPassword ? "Ẩn" : "Hiện"}</span>
+            <span
+              className="show-pass"
+              onClick={() => setIsShowPassword(!isShowPassword)}
+            >
+              {isShowPassword ? "Ẩn" : "Hiện"}
+            </span>
           </div>
-
-          <ButtonComponent
-            bordered={false}
-            size={40}
-            styleButton={{
-              background: "rgb(255, 66, 78)",
-              height: "48px",
-              width: "100%",
-              border: "none",
-              borderRadius: "4px",
-              margin: "26px 0 10px",
-            }}
-            styleTextButton={{ color: "#fff", fontSize: "16px" }}
-            textbutton={"Đăng nhập"}
-          />
-          <p class="forgot-pass">Quên mật khẩu?</p>
-          <p class="create-account">
-            Chưa có tài khoản? <span>Tạo tài khoản</span>
+          {data?.status === "ERR" && (
+            <span style={{ color: "red" }}>{data?.message}</span>
+          )}
+          <Loading isPending={isPending}>
+            <ButtonComponent
+              disabled={!email.length || !password.length}
+              onClick={handleSignIn}
+              size={40}
+              styleButton={{
+                background: "rgb(255, 66, 78)",
+                height: "48px",
+                width: "100%",
+                border: "none",
+                borderRadius: "4px",
+                margin: "26px 0 10px",
+              }}
+              styleTextButton={{
+                color: "#fff",
+                fontSize: "16px",
+                fontWeight: 700,
+              }}
+              textbutton={"Đăng nhập"}
+            />
+          </Loading>
+          <p className="forgot-pass">Quên mật khẩu?</p>
+          <p className="create-account">
+            Chưa có tài khoản?{" "}
+            <span onClick={handleNavigateSignUp}>Tạo tài khoản</span>
           </p>
         </WrapperContainerLeft>
         <WrapperContainerRight>

@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from "react";
 import { WrapperInputStyle } from "./style";
 
 const InputFormComponent = ({
@@ -7,9 +6,13 @@ const InputFormComponent = ({
   placeholder = "Nhap text",
   bordered,
   style,
+  value,
+  handleOnChange,
   ...rests
 }) => {
-  const { value, setValue } = useState("");
+  const handleOnChangeInput = (e) => {
+    handleOnChange(e.target.value);
+  };
   return (
     <WrapperInputStyle
       size={size}
@@ -17,6 +20,7 @@ const InputFormComponent = ({
       style={style}
       {...rests}
       value={value}
+      onChange={handleOnChangeInput}
     />
   );
 };
