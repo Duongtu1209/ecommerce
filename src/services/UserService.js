@@ -1,12 +1,14 @@
 import axios from "axios";
 
-export const loginUser = async (data) => {
-  const res = await axios.post(
-    `${process.env.REACT_APP_URL_BACKEND}/user/sign-in`,
-    data
-  );
-  return res.data;
-};
+export const axiosJWT = axios.create();
+
+export const loginUser = async (data) => {  
+    const res = await axios.post(
+      `${process.env.REACT_APP_URL_BACKEND}/user/sign-in`,
+      data
+    );
+    return res.data;
+  }
 
 export const signUpUser = async (data) => {
   const res = await axios.post(
@@ -16,14 +18,31 @@ export const signUpUser = async (data) => {
   return res.data;
 };
 
-export const getDetailsUser = async (id, access_token) => {
-  const res = await axios.get(
-    `${process.env.REACT_APP_URL_BACKEND}/get-details/${id}`,
+export const getDetailsUser = async (id, access_token) => {    
+  const res = await axiosJWT.get(
+    `${process.env.REACT_APP_URL_BACKEND}/user/get-details/${id}`,
     {
       headers: {
         token: `Bearer ${access_token}`,
       },
     }
   );
+  return res.data;
+};
+
+
+export const refreshToken = async () => {      
+  const res = await axios.post(
+    `${process.env.REACT_APP_URL_BACKEND}/user/refresh-token`, {
+      withCredentials: true
+    }
+  
+  );
+  return res.data;
+};
+
+export const logoutUser = async () => {        
+  const res = await axios.post(
+    `${process.env.REACT_APP_URL_BACKEND}/user/logout`);
   return res.data;
 };
