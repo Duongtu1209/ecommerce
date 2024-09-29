@@ -58,7 +58,7 @@ function App() {
 
   return (
     <div>
-    <Loading>
+    <Loading isPending={isLoading}>
     <Router>
         <Routes>
           {routes.map((route) => {
