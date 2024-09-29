@@ -1,3 +1,4 @@
+import { Upload } from "antd";
 import styled from "styled-components";
 
 export const WrapperHeader = styled.h1`
@@ -20,12 +21,19 @@ export const WrapperContentProfile = styled.div`
 export const WrapperLabel = styled.label`
     color: #000;
     font-size: 12px;
-    line-height: 16px;
-    font-weight: 500;
+    line-height: 30px;
+    font-weight: 600;
+    width: 80px;
+    text-align: left;
 `
 
 export const WrapperInput = styled.div`
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
+`
+export const WrapperUploadFile = styled(Upload)`
+    .ant-upload-list.ant-upload-list-text {
+        display: none
+    }
 `

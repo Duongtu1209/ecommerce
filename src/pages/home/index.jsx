@@ -1,5 +1,5 @@
 import React from "react";
-import { WrapperTypeProduct, WrapperButtonMore } from "./style";
+import { WrapperTypeProduct, WrapperButtonMore, WrapperProducts } from "./style";
 import TypeProduct from "../../components/Product/Type";
 import SliderComponent from "../../components/Slider/Slider";
 import blackFriday from "../../assets/images/blackFriday.jpg";
@@ -7,10 +7,23 @@ import muathu from "../../assets/images/muathu.jpg";
 import lotus from "../../assets/images/lotus.jpg";
 import sofa from "../../assets/images/sofa.jpg";
 import CardComponent from "../../components/Card/Card";
-// import NavBar from "../../components/Navbar/Navbar";
+import { useQuery } from "@tanstack/react-query";
+import * as ProductService from "../../services/ProductService"
 
 const Home = () => {
   const arr = ["Television", "Laptop", "Phone"];
+  const fetchProductAll = async () => {
+    const res = await ProductService.getAllProduct()
+    return res
+  } 
+  const {isPending, data: products, isLoading} = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProductAll,
+    retry: 3,
+    retryDelay: 1000,
+  });  
+  console.log(products, isPending, isLoading);
+  
   return (
     <>
       <WrapperTypeProduct>
@@ -23,23 +36,24 @@ const Home = () => {
         style={{ backgroundColor: "#efefef", padding: "0 120px", height: 1000 }}
       >
         <SliderComponent arrImages={[blackFriday, muathu, lotus, sofa]} />
-        <div
-          style={{
-            marginTop: 20,
-            display: "flex",
-            alignContent: "center",
-            gap: 32.5,
-            flexWrap: "wrap",
-          }}
-        >
-          <CardComponent />
-          <CardComponent />
-          <CardComponent />
-          <CardComponent />
-          <CardComponent />
-          <CardComponent />
-          <CardComponent />
-        </div>
+        <WrapperProducts>
+          {products?.data.map((product) => {
+            return (
+              <CardComponent 
+                key={product._id} 
+                countInStock={product.countInStock}
+                description={product.description}
+                image={product.image}
+                name={product.name}
+                price={product.price}
+                type={product.type}
+                rating={product.rating}
+                discount={product.discount}
+                selled={product.selled}
+              />
+              )
+          })}
+        </WrapperProducts>
         <div
           style={{
             width: "100%",

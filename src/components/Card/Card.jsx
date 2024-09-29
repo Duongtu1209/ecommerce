@@ -10,7 +10,8 @@ import {
 import official from "../../assets/images/official.png";
 import { WrapperStyleTextSell } from "../ProductDetail/style";
 
-const CardComponent = () => {
+const CardComponent = (props) => {
+  const {countInStock, description, image, name, price, rating, discount, selled, type} = props
   return (
     <WrapperCardStyle
       cover={
@@ -32,17 +33,17 @@ const CardComponent = () => {
         }}
         alt="official"
       />
-      <StyleNameProduct>Iphone</StyleNameProduct>
+      <StyleNameProduct>{name}</StyleNameProduct>
       <WrapperReportText>
         <span style={{ marginRight: 4 }}>
-          <span>4.96</span>
+          <span>{rating}</span>
           <StarFilled style={{ fontSize: 12, color: "yellow" }} />
         </span>
-        <WrapperStyleTextSell>| Da ban 1000+</WrapperStyleTextSell>
+        <WrapperStyleTextSell>| Da ban {selled || 1000}+</WrapperStyleTextSell>
       </WrapperReportText>
       <WrapperPriceText>
-        1.000.000d
-        <WrapperDiscountText>-5%</WrapperDiscountText>
+        <span style={{ marginRight: '8px'}}>{price}</span>
+        <WrapperDiscountText>{discount || 5}%</WrapperDiscountText>
       </WrapperPriceText>
     </WrapperCardStyle>
   );

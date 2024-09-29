@@ -1,5 +1,5 @@
 import { Badge, Col, Popover } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   WrapperContentPopup,
   WrapperHeader,
@@ -21,7 +21,9 @@ import Loading from "../Loading/Loading";
 
 const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const nav = useNavigate();
-  const user = useSelector((state) => state.user)  
+  const user = useSelector((state) => state.user)
+  const [userName, setUserName] = useState('') 
+  const [userAvatar, setUserAvatar] = useState('') 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false)
   const handleNavigateLogin = () => {
@@ -34,6 +36,14 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     dispatch(resetUser())
     setLoading(false)
   }
+
+  useEffect(() => {     
+    setLoading(true)
+    setUserName(user?.name) 
+    setUserAvatar(user?.avatar)
+    setLoading(false)
+  }, [ user?.name, user?.avatar])
+
   const content = (
     <div>
       <WrapperContentPopup onClick={handleLogout}>Đăng xuất</WrapperContentPopup>
@@ -81,11 +91,17 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         >
         <Loading isPending={loading}>
           <WrapperHeaderAccount>
-              <UserOutlined style={{ fontSize: "30px" }} />{
-                user?.name ? (
+              {userAvatar ? (<img src={userAvatar} style={{
+                            height: '30px',
+                            width:'30px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                        }} alt='avatar'/>) : (<UserOutlined style={{ fontSize: "30px" }} />)}
+              {
+                user?.access_token ? (
                   <>
                     <Popover content={content} trigger="click">
-                      <div style={{ cursor: "pointer" }}>{user.name}</div>
+                      <div style={{ cursor: "pointer" }}>{userName?.length ? userName : user?.email}</div>
                     </Popover>
                   </>
                   ): (<div style={{ cursor: "pointer" }} onClick={handleNavigateLogin}>
