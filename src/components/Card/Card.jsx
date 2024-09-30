@@ -11,7 +11,7 @@ import official from "../../assets/images/official.png";
 import { WrapperStyleTextSell } from "../ProductDetail/style";
 
 const CardComponent = (props) => {
-  const {countInStock, description, image, name, price, rating, discount, selled, type} = props
+  const {quantity, description, image, name, price, rating, discount, selled, type} = props
   return (
     <WrapperCardStyle
       cover={

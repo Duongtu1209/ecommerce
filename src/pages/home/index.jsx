@@ -39,7 +39,7 @@ const Home = () => {
             return (
               <CardComponent 
                 key={product._id} 
-                countInStock={product.countInStock}
+                quantity={product.quantity}
                 description={product.description}
                 image={product.image}
                 name={product.name}
