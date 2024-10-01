@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { WrapperHeader, WrapperUploadFile } from './style'
 import { Button, Form, message, Modal } from 'antd'
-import { PlusCircleFilled } from '@ant-design/icons'
+import { PlusCircleFilled, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import TableComponent from '../Table/Table'
 import InputComponent from '../Input/Input'
 import { getBase64 } from '../../services/utils'
 import { useMutationHook } from '../../hooks/useMutationHook'
 import * as ProductService from '../../services/ProductService'
 import Loading from '../Loading/Loading'
+import { useQuery } from '@tanstack/react-query'
 
 export const AdminProduct = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +23,8 @@ export const AdminProduct = () => {
         type: ''
     });
 
+    const [form] = Form.useForm();
+
     const mutation = useMutationHook(
         (data) => {
             const {name, price, description, rating, image, type, quantity, sku} = data;
@@ -31,8 +34,18 @@ export const AdminProduct = () => {
             return res;
         }
     )
-    
+    const getAllProducts = async () => {
+        const res = await ProductService.getAllProduct()
+        return res;
+    }
     const {data, isPending, isSuccess, isError} = mutation
+
+    const {isPending:isPendingProducts, data: products} = useQuery({
+        queryKey: ['products'],
+        queryFn: getAllProducts,
+        retry: 3,
+        retryDelay: 1000,
+      });    
 
     useEffect(() => {
         if (isSuccess && data?.status === 'OK') {
@@ -46,16 +59,7 @@ export const AdminProduct = () => {
     
     const handleCancel = () => {
         setIsModalOpen(false);
-        setStateProduct({
-            sku:'',
-            name: '',
-            price: '',
-            description: '',
-            rating: '',
-            quantity: '',
-            image: '',
-            type: ''
-        })
+        form.resetFields()
     };
 
     const onFinish = (values) => {
@@ -81,6 +85,54 @@ export const AdminProduct = () => {
         }
     }
 
+    const renderAction = () => {
+        return (
+            <div>
+                <DeleteOutlined style={{ color: 'red', fontSize: 25, cursor: "pointer" }}/>
+                <EditOutlined  style={{ color: 'orange', fontSize: 25, cursor: "pointer" }}/>
+            </div>
+        )
+    }
+    const columns = [
+        {
+          title: 'Name',
+          dataIndex: 'name',
+          render: (text) => <a>{text}</a>
+        },
+        {
+          title: 'Type',
+          dataIndex: 'type',
+        },
+        {
+          title: 'Sku',
+          dataIndex: 'sku',
+        },
+        {
+          title: 'Quantity',
+          dataIndex: 'quantity',
+        },
+        {
+          title: 'Price',
+          dataIndex: 'price',
+        },
+        {
+          title: 'Rating',
+          dataIndex: 'rating',
+        },
+        {
+          title: 'Discount',
+          dataIndex: 'discount',
+        },
+        {
+          title: 'Action',
+          dataIndex: 'action',
+          render: renderAction
+        }
+      ];
+
+    const dataTable = products?.data?.length && products?.data?.map((product) => {
+    return {...product, key: product._id}
+    })
     return (
         <div>
             <WrapperHeader>Quản lí sản phẩm</WrapperHeader>
@@ -88,17 +140,17 @@ export const AdminProduct = () => {
                 <Button style={{ height: '150px', width: '150px', borderRadius: '6px', borderStyle: 'dashed'}} onClick={() => setIsModalOpen(true)}><PlusCircleFilled style={{ fontSize: '40px'}}/></Button>
             </div>
             <div style={{ marginTop: 20}}>
-                <TableComponent/>
+                <TableComponent columns={columns} data={dataTable} isPending={isPendingProducts}/>
             </div>
             <Modal title="Tạo sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null}>
                 <Loading isPending={isPending}>
                     <Form
                     name="basic"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
-                    initialValues={{ remember: true }}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
                     onFinish={onFinish}
                     autoComplete="off"
+                    form={form}
                     >
                         <Form.Item
                             label="Name"
@@ -170,7 +222,7 @@ export const AdminProduct = () => {
                         </Form.Item>
                         
 
-                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                        <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
                             <Button type="primary" htmlType="submit">
                             Submit
                             </Button>

@@ -16,7 +16,7 @@ const Home = () => {
     const res = await ProductService.getAllProduct()
     return res
   } 
-  const {isPending, data: products, isLoading} = useQuery({
+  const {data: products} = useQuery({
     queryKey: ['products'],
     queryFn: fetchProductAll,
     retry: 3,
