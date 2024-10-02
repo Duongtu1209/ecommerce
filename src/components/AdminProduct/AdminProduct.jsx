@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { WrapperHeader, WrapperUploadFile } from './style'
 import { Button, Form, Input, message, Space } from 'antd'
-import { PlusCircleFilled, DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { PlusCircleFilled, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons'
 import TableComponent from '../Table/Table'
 import InputComponent from '../Input/Input'
 import { getBase64 } from '../../services/utils'
@@ -12,7 +12,6 @@ import { useQuery } from '@tanstack/react-query'
 import DrawerComponent from '../Drawer/Drawer'
 import { useSelector } from "react-redux";
 import { ModalComponent } from '../Modal/Modal'
-import { SearchOutlined } from '@ant-design/icons';
 
 export const AdminProduct = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +43,8 @@ export const AdminProduct = () => {
         type: ''
     });
 
-    const [form] = Form.useForm();
+    const [createProductForm] = Form.useForm();
+    const [updateProductForm] = Form.useForm();
 
     const mutation = useMutationHook(
         (data) => ProductService.createProduct(data)
@@ -140,15 +140,15 @@ export const AdminProduct = () => {
     };
 
     useEffect(() => {
-        form.setFieldsValue(stateProductDetails);
-    }, [form, stateProductDetails]);
-
-    useEffect(() => {
         if (rowSelected) {
-            setIsPendingUpdate(true)
+            setIsPendingUpdate(true);
             fetchDetailsProduct(rowSelected);
         }
     }, [rowSelected]);
+
+    useEffect(() => {
+        updateProductForm.setFieldsValue(stateProductDetails);
+    }, [updateProductForm, stateProductDetails]);
 
     const handleDetailsProduct = () => {
         setIsDrawerOpen(true);
@@ -156,7 +156,7 @@ export const AdminProduct = () => {
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        form.resetFields();
+        createProductForm.resetFields();
         setStateProduct({
             sku: '',
             name: '',
@@ -171,12 +171,12 @@ export const AdminProduct = () => {
 
     const handleCancelDrawer = () => {
         setIsDrawerOpen(false);
-        form.resetFields();
+        updateProductForm.resetFields();
     };
 
     const onFinish = () => {
         mutation.mutate(stateProduct, {
-            onSettled: () => {
+            onSuccess: () => {
                 queryProduct.refetch()
             }
         });
@@ -227,10 +227,10 @@ export const AdminProduct = () => {
         )
     }
 
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    const handleSearch = (confirm) => {
         confirm();
       };
-      const handleReset = (clearFilters, confirm, dataIndex) => {
+      const handleReset = (clearFilters, confirm) => {
         clearFilters();
         confirm();
       };
@@ -342,8 +342,9 @@ export const AdminProduct = () => {
 
     const onUpdateProduct = () => {
         mutationUpdate.mutate({id: rowSelected, token: user?.access_token, ...stateProductDetails}, {
-            onSettled: () => {
+            onSuccess: () => {
                 queryProduct.refetch()
+                fetchDetailsProduct(rowSelected);
             }
         })
     }
@@ -354,7 +355,7 @@ export const AdminProduct = () => {
     
     const handleDeleteProduct = () => {
         mutationDelete.mutate({id: rowSelected, token: user?.access_token}, {
-            onSettled: () => {
+            onSuccess: () => {
                 queryProduct.refetch()
             }
         })
@@ -367,15 +368,20 @@ export const AdminProduct = () => {
                 <Button style={{ height: '150px', width: '150px', borderRadius: '6px', borderStyle: 'dashed'}} onClick={() => setIsModalOpen(true)}><PlusCircleFilled style={{ fontSize: '40px'}}/></Button>
             </div>
             <div style={{ marginTop: 20}}>
-                <TableComponent columns={columns} data={dataTable} isPending={isPendingProducts} onRow={(record, rowIndex) => {
-                    return {
-                        onClick: event => {
-                            setRowSelected(record._id)
-                        }, 
-                    };
-                }}/>
+               <TableComponent
+                    columns={columns}
+                    data={dataTable}
+                    isPending={isPendingProducts}
+                    onRow={(record, rowIndex) => {
+                        return {
+                        onClick: () => {
+                            setRowSelected(record._id);
+                        },
+                        };
+                    }}
+                />
             </div>
-            <ModalComponent title="Tạo sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null}>
+            <ModalComponent forceRender title="Tạo sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null}>
                 <Loading isPending={isPending}>
                     <Form
                     name="basic"
@@ -383,7 +389,7 @@ export const AdminProduct = () => {
                     wrapperCol={{ span: 18 }}
                     onFinish={onFinish}
                     autoComplete="off"
-                    form={form}
+                    form={createProductForm}
                     >
                         <Form.Item
                             label="Name"
@@ -471,7 +477,7 @@ export const AdminProduct = () => {
                     wrapperCol={{ span: 22 }}
                     onFinish={onUpdateProduct}
                     autoComplete="off"
-                    form={form}
+                    form={updateProductForm}
                     >
                         <Form.Item
                             label="Name"
