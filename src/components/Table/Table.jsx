@@ -24,6 +24,7 @@ const TableComponent = (props) => {
           }}
           columns={columns}
           dataSource={data}
+          {...props}
         />
       </Loading>
   )
