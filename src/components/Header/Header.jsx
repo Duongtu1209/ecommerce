@@ -15,47 +15,56 @@ import {
 import Search from "../Button/Search";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import * as UserService from "../../services/UserService"
+import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/sliders/userSlider";
 import Loading from "../Loading/Loading";
 import { searchProduct } from "../../redux/sliders/productSlider";
 
 const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const nav = useNavigate();
-  const user = useSelector((state) => state.user)
-  const [userName, setUserName] = useState('') 
-  const [userAvatar, setUserAvatar] = useState('') 
+  const user = useSelector((state) => state.user);
+  const order = useSelector((state) => state?.order);
+  const [userName, setUserName] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const handleNavigateLogin = () => {
     nav("/sign-in");
   };
   const handleLogout = async () => {
-    setLoading(true)
-    await UserService.logoutUser()
-    localStorage.clear('access_token')
-    dispatch(resetUser())
-    setLoading(false)
-  }
+    setLoading(true);
+    await UserService.logoutUser();
+    localStorage.clear("access_token");
+    dispatch(resetUser());
+    setLoading(false);
+  };
 
-  useEffect(() => {     
-    setLoading(true)
-    setUserName(user?.name) 
-    setUserAvatar(user?.avatar)
-    setLoading(false)
-  }, [ user?.name, user?.avatar])
+  useEffect(() => {
+    setLoading(true);
+    setUserName(user?.name);
+    setUserAvatar(user?.avatar);
+    setLoading(false);
+  }, [user?.name, user?.avatar]);
 
   const content = (
     <div>
-      <WrapperContentPopup onClick={handleLogout}>Đăng xuất</WrapperContentPopup>
-      <WrapperContentPopup onClick={() => nav('/profile-user')}>Thông tin người dùng</WrapperContentPopup>
-      {user?.isAdmin && <WrapperContentPopup onClick={() => nav('/system/admin')}>Quản lí hệ thống</WrapperContentPopup>}
+      <WrapperContentPopup onClick={handleLogout}>
+        Đăng xuất
+      </WrapperContentPopup>
+      <WrapperContentPopup onClick={() => nav("/profile-user")}>
+        Thông tin người dùng
+      </WrapperContentPopup>
+      {user?.isAdmin && (
+        <WrapperContentPopup onClick={() => nav("/system/admin")}>
+          Quản lí hệ thống
+        </WrapperContentPopup>
+      )}
     </div>
-  )
+  );
 
   const onSearch = (e) => {
     dispatch(searchProduct(e.target.value));
-  }
+  };
 
   return (
     <div
@@ -96,35 +105,50 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
             justifyContent: "flex-end",
           }}
         >
-        <Loading isPending={loading}>
-          <WrapperHeaderAccount>
-              {userAvatar ? (<img src={userAvatar} style={{
-                            height: '30px',
-                            width:'30px',
-                            borderRadius: '50%',
-                            objectFit: 'cover',
-                        }} alt='avatar'/>) : (<UserOutlined style={{ fontSize: "30px" }} />)}
-              {
-                user?.access_token ? (
-                  <>
-                    <Popover content={content} trigger="click">
-                      <div style={{ cursor: "pointer" }}>{userName?.length ? userName : user?.email}</div>
-                    </Popover>
-                  </>
-                  ): (<div style={{ cursor: "pointer" }} onClick={handleNavigateLogin}>
-                <WrapperTextHeaderSmall>Đăng nhập/Đăng ký</WrapperTextHeaderSmall>
-                <div>
-                  <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
-                  <CaretDownOutlined />
+          <Loading isPending={loading}>
+            <WrapperHeaderAccount>
+              {userAvatar ? (
+                <img
+                  src={userAvatar}
+                  style={{
+                    height: "30px",
+                    width: "30px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                  alt="avatar"
+                />
+              ) : (
+                <UserOutlined style={{ fontSize: "30px" }} />
+              )}
+              {user?.access_token ? (
+                <>
+                  <Popover content={content} trigger="click">
+                    <div style={{ cursor: "pointer" }}>
+                      {userName?.length ? userName : user?.email}
+                    </div>
+                  </Popover>
+                </>
+              ) : (
+                <div
+                  style={{ cursor: "pointer" }}
+                  onClick={handleNavigateLogin}
+                >
+                  <WrapperTextHeaderSmall>
+                    Đăng nhập/Đăng ký
+                  </WrapperTextHeaderSmall>
+                  <div>
+                    <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
+                    <CaretDownOutlined />
+                  </div>
                 </div>
-              </div>)
-              }
+              )}
             </WrapperHeaderAccount>
-        </Loading>
-          
+          </Loading>
+
           {!isHiddenCart && (
             <div style={{ cursor: "pointer" }}>
-              <Badge size="small" count={4}>
+              <Badge size="small" count={order?.orderItems?.length}>
                 <ShoppingCartOutlined
                   style={{ fontSize: "30px", color: "#fff" }}
                 />

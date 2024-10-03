@@ -1,6 +1,6 @@
 import Error404 from "../pages/404";
 import Home from "../pages/home";
-import Order from "../pages/orders";
+import Order from "../pages/order";
 import Product from "../pages/products";
 import SignIn from "../pages/signIn";
 import SignUp from "../pages/signUp";
@@ -36,7 +36,7 @@ export const routes = [
     isShowheader: false,
   },
   {
-    path: "/product-detail",
+    path: "/product-detail/:id",
     page: ProductDetail,
     isShowheader: true,
   },
@@ -52,7 +52,7 @@ export const routes = [
     isPrivate: true
   },
   {
-    path: "/:type",
+    path: "product/:type",
     page: TypeProductPages,
     isShowheader: true,
   },

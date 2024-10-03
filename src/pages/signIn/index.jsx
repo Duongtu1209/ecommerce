@@ -4,7 +4,7 @@ import InputFormComponent from "../../components/InputForm/InputForm";
 import ButtonComponent from "../../components/Button/Button";
 import { Image } from "antd";
 import logoLogin from "../../assets/images/logo-login.png";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import * as UserService from "../../services/UserService";
 import { useMutationHook } from "../../hooks/useMutationHook";
 import Loading from "../../components/Loading/Loading";
@@ -15,6 +15,7 @@ import { updateUser } from "../../redux/sliders/userSlider";
 const SignIn = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { state } = useLocation();
   const handleNavigateSignUp = () => {
     navigate("/sign-up");
   };
@@ -43,7 +44,11 @@ const SignIn = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      navigate("/");
+      if (state) {
+        navigate(state);
+      } else {
+        navigate("/");
+      }
       localStorage.setItem("access_token", JSON.stringify(data?.access_token));
       if (data?.access_token) {
         const decoded = jwtDecode(data?.access_token);
@@ -57,8 +62,8 @@ const SignIn = () => {
 
   const handleGetDetailsUser = async (id, token) => {
     const res = await UserService.getDetailsUser(id, token);
-    dispatch(updateUser({...res?.data, access_token: token}))
-  };  
+    dispatch(updateUser({ ...res?.data, access_token: token }));
+  };
 
   return (
     <div

@@ -268,7 +268,7 @@ export const AdminUser = () => {
               placeholder={`Search ${dataIndex}`}
               value={`${selectedKeys[0] || ''}`}
               onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-              onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              onPressEnter={() => handleSearch(confirm)}
               style={{
                 marginBottom: 8,
                 display: 'block',
@@ -277,7 +277,7 @@ export const AdminUser = () => {
             <Space>
               <Button
                 type="primary"
-                onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                onClick={() => handleSearch(confirm)}
                 icon={<SearchOutlined />}
                 size="small"
                 style={{
@@ -287,7 +287,7 @@ export const AdminUser = () => {
                 Search
               </Button>
               <Button
-                onClick={() => clearFilters && handleReset(clearFilters, confirm ,dataIndex)}
+                onClick={() => clearFilters && handleReset(clearFilters, confirm)}
                 size="small"
                 style={{
                   width: 90,

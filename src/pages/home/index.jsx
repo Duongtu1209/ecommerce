@@ -1,5 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { WrapperTypeProduct, WrapperButtonMore, WrapperProducts } from "./style";
+import React, { useEffect, useState } from "react";
+import {
+  WrapperTypeProduct,
+  WrapperButtonMore,
+  WrapperProducts,
+} from "./style";
 import TypeProduct from "../../components/Product/Type";
 import SliderComponent from "../../components/Slider/Slider";
 import blackFriday from "../../assets/images/blackFriday.jpg";
@@ -8,67 +12,60 @@ import lotus from "../../assets/images/lotus.jpg";
 import sofa from "../../assets/images/sofa.jpg";
 import CardComponent from "../../components/Card/Card";
 import { useQuery } from "@tanstack/react-query";
-import * as ProductService from "../../services/ProductService"
+import * as ProductService from "../../services/ProductService";
 import { useSelector } from "react-redux";
 import Loading from "../../components/Loading/Loading";
 import { useDebounce } from "../../hooks/useDebounce";
 
 const Home = () => {
-  const searchProduct = useSelector((state) => state?.product?.search)
-  const refSearch = useRef()
-  const searchDebounce = useDebounce(searchProduct, 1000)
-  const [pending, setPending] = useState(false)
-  const [stateProducts, setStateProducts] = useState([])
-  const arr = ["Television", "Laptop", "Phone"];
-  const fetchProductAll = async (search) => {
-    const res = await ProductService.getAllProduct(search)
-    if (search?.length > 0 || refSearch.current) {
-      setStateProducts(res?.data)
-    } else {
-       return res
-    }
-  } 
+  const searchProduct = useSelector((state) => state?.product?.search);
+  const searchDebounce = useDebounce(searchProduct, 1000);
+  const [typeProducts, setTypeProducts] = useState([])
+  const [limit, setLimit] = useState(6);
+  const fetchProductAll = async (context) => {
+    const limit = context?.queryKey && context?.queryKey[1];
+    const search = context?.queryKey && context?.queryKey[2];
+    const res = await ProductService.getAllProduct(search, limit);
+    return res;
+  };
 
-  
-  useEffect(() => {
-    if (refSearch.current) {
-        setPending(true)
-        fetchProductAll(searchDebounce)
-    }
-    refSearch.current = true
-    setPending(false)
-  },[searchDebounce])
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct();
+    setTypeProducts(res?.data);
+  }
 
-  const {isPending, data: products} = useQuery({
-    queryKey: ['products'],
+  const { isPending, data: products } = useQuery({
+    queryKey: ["products", limit, searchDebounce],
     queryFn: fetchProductAll,
     retry: 3,
     retryDelay: 1000,
-  });    
+  });
 
   useEffect(() => {
-    if (products?.data?.length > 0) {
-      setStateProducts(products?.data)
-    }
-  }, [products])
+    fetchAllTypeProduct()
+  },[])
 
   return (
-    <Loading isPending={isPending || pending}>
+    <Loading isPending={isPending}>
       <WrapperTypeProduct>
-        {arr.map((item) => {
+        {typeProducts.map((item) => {
           return <TypeProduct name={item} key={item} />;
         })}
       </WrapperTypeProduct>
       <div
         id="container"
-        style={{ backgroundColor: "#efefef", padding: "0 120px", height: 1000 }}
+        style={{
+          backgroundColor: "#efefef",
+          padding: "0 120px 120px",
+          height: "100%",
+        }}
       >
         <SliderComponent arrImages={[blackFriday, muathu, lotus, sofa]} />
         <WrapperProducts>
-          {stateProducts?.map((product) => {
+          {products?.data?.map((product) => {
             return (
-              <CardComponent 
-                key={product._id} 
+              <CardComponent
+                key={product._id}
                 quantity={product.quantity}
                 description={product.description}
                 image={product.image}
@@ -78,8 +75,9 @@ const Home = () => {
                 rating={product.rating}
                 discount={product.discount}
                 selled={product.selled}
+                id={product._id}
               />
-              )
+            );
           })}
         </WrapperProducts>
         <div
@@ -94,15 +92,36 @@ const Home = () => {
             textbutton="Xem thêm"
             type="outline"
             styleButton={{
+              marginTop: 30,
               border: "1px solid rgb(11, 116, 229)",
-              color: `rgb(11, 116, 229)`,
+              color: `${
+                products?.total === products?.data?.length
+                  ? "#ccc"
+                  : "rgb(11, 116, 229)"
+              }`,
               width: 240,
               height: 38,
               borderRadius: 4,
             }}
-            styleTextButton={{ fontWeight: 500 }}
+            disabled={
+              products?.total === products?.data?.length ||
+              products?.totalPage === 1
+            }
+            styleTextButton={{
+              fontWeight: 500,
+              color: products?.total === products?.data?.length && "#fff",
+            }}
+            onClick={() => {
+              if (
+                !(
+                  products?.total === products?.data?.length ||
+                  products?.totalPage === 1
+                )
+              ) {
+                setLimit((prev) => prev + 6);
+              }
+            }}
           />
-          {/* <NavBar/> */}
         </div>
       </div>
     </Loading>
