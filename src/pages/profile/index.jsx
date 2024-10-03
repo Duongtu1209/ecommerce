@@ -23,8 +23,8 @@ const ProfileUser = () => {
     
     const mutation = useMutationHook(
         data => {
-            const {id, access_token, ...rests} = data
-            return UserService.updateUser(id, rests, access_token)
+            const {id, access_token, ...rests} = data            
+            return UserService.updateUser(id, access_token, rests)
         }
     )
 
@@ -65,7 +65,7 @@ const ProfileUser = () => {
         }
     }
     const handleUpdate = () => {        
-        mutation.mutate({id: user?._id, email, name, phone, address, avatar, access_token: user?.access_token})
+        mutation.mutate({id: user?._id, email, name, phone, address, avatar, access_token: user?.access_token}, )
     }
     return (
         <div style={{ width: '1600px', margin: '0 auto'}}>
@@ -74,82 +74,18 @@ const ProfileUser = () => {
                 <WrapperInput>
                     <WrapperLabel htmlFor='name'>Họ và tên</WrapperLabel>
                     <InputFormComponent id='name' style={{ width: '300px' }} value={name} handleOnChange={setName}></InputFormComponent>
-                    <ButtonComponent
-                        onClick={handleUpdate}
-                        size={40}
-                        styleButton={{
-                            height: "30px",
-                            width: "fit-content",
-                            borderRadius: "4px",
-                            padding: '2px 6px 6px'
-                        }}
-                        styleTextButton={{
-                            color: "rgb(26, 148, 255)",
-                            fontSize: "15x",
-                            fontWeight: 700,
-                        }}
-                        textbutton={"Cập nhật"}
-                        />
                 </WrapperInput>
                 <WrapperInput>
                     <WrapperLabel htmlFor='email'>Email</WrapperLabel>
                     <InputFormComponent id='email' style={{ width: '300px' }} value={email} handleOnChange={setEmail}></InputFormComponent>
-                    <ButtonComponent
-                        onClick={handleUpdate}
-                        size={40}
-                        styleButton={{
-                            height: "30px",
-                            width: "fit-content",
-                            borderRadius: "4px",
-                            padding: '2px 6px 6px'
-                        }}
-                        styleTextButton={{
-                            color: "rgb(26, 148, 255)",
-                            fontSize: "15x",
-                            fontWeight: 700,
-                        }}
-                        textbutton={"Cập nhật"}
-                        />
                 </WrapperInput>
                 <WrapperInput>
                     <WrapperLabel htmlFor='phone'>Số điện thoại</WrapperLabel>
                     <InputFormComponent id='phone' style={{ width: '300px' }} value={phone} handleOnChange={setPhone}></InputFormComponent>
-                    <ButtonComponent
-                        onClick={handleUpdate}
-                        size={40}
-                        styleButton={{
-                            height: "30px",
-                            width: "fit-content",
-                            borderRadius: "4px",
-                            padding: '2px 6px 6px'
-                        }}
-                        styleTextButton={{
-                            color: "rgb(26, 148, 255)",
-                            fontSize: "15x",
-                            fontWeight: 700,
-                        }}
-                        textbutton={"Cập nhật"}
-                        />
                 </WrapperInput>
                 <WrapperInput>
                     <WrapperLabel htmlFor='address'>Địa chỉ</WrapperLabel>
                     <InputFormComponent id='address' style={{ width: '300px' }} value={address} handleOnChange={setAddress}></InputFormComponent>
-                    <ButtonComponent
-                        onClick={handleUpdate}
-                        size={40}
-                        styleButton={{
-                            height: "30px",
-                            width: "fit-content",
-                            borderRadius: "4px",
-                            padding: '2px 6px 6px'
-                        }}
-                        styleTextButton={{
-                            color: "rgb(26, 148, 255)",
-                            fontSize: "15x",
-                            fontWeight: 700,
-                        }}
-                        textbutton={"Cập nhật"}
-                        />
                 </WrapperInput>
                 <WrapperInput>
                     <WrapperLabel htmlFor='avatar'>Ảnh đại diện</WrapperLabel>
@@ -164,23 +100,26 @@ const ProfileUser = () => {
                             objectFit: 'cover',
                         }} alt='avatar'/>
                     )}
-                    <ButtonComponent
-                        onClick={handleUpdate}
-                        size={40}
-                        styleButton={{
-                            height: "30px",
-                            width: "fit-content",
-                            borderRadius: "4px",
-                            padding: '2px 6px 6px'
-                        }}
-                        styleTextButton={{
-                            color: "rgb(26, 148, 255)",
-                            fontSize: "15x",
-                            fontWeight: 700,
-                        }}
-                        textbutton={"Cập nhật"}
-                        />
                 </WrapperInput>
+                <ButtonComponent
+                    onClick={handleUpdate}
+                    size={40}
+                    styleButton={{
+                        height: "30px",
+                        width: "fit-content",
+                        borderRadius: "4px",
+                        padding: '2px 6px 6px',
+                        position: 'relative',
+                        left: '50%',
+                        transform: 'translate(-50%, 0)'
+                    }}
+                    styleTextButton={{
+                        color: "rgb(26, 148, 255)",
+                        fontSize: "15x",
+                        fontWeight: 700,
+                    }}
+                    textbutton={"Cập nhật"}
+                    />
             </WrapperContentProfile>
         </div>
     );

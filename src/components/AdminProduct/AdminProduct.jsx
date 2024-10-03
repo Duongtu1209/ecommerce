@@ -71,11 +71,27 @@ export const AdminProduct = () => {
         }
     );
 
+    const mutationDeleteMany = useMutationHook(
+        (data) => {            
+            const {token, ...ids} = data            
+            const res = ProductService.deleteManyProduct(ids, token)
+            return res
+        }
+    );
+
     const { data, isPending, isSuccess, isError } = mutation;
     const { data: dataUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate;
     const { data: dataDeleted, isPending: isPendingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete;
+    const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany;
 
+    const handleDeleteManyProducts = (ids) => {
+        mutationDeleteMany.mutate({ids: ids, token: user?.access_token}, {
+            onSuccess: () => {
+                queryProduct.refetch()
+            }
+        })
 
+    } 
     const queryProduct = useQuery({
         queryKey: ['products'],
         queryFn: getAllProducts,
@@ -116,6 +132,17 @@ export const AdminProduct = () => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSuccessDeleted, isErrorDeleted]);
+
+    useEffect(() => {
+        if (isSuccessDeletedMany && dataDeletedMany?.status === 'OK') {
+            message.success('Delete list product successfully');
+            handleCancelDelete();
+        } else if (isErrorDeletedMany) {
+            message.error('Error occurred while delete product');
+            handleCancelDelete();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSuccessDeletedMany, isErrorDeletedMany]);
 
     const fetchDetailsProduct = async (id) => {
         try {
@@ -371,7 +398,8 @@ export const AdminProduct = () => {
                <TableComponent
                     columns={columns}
                     data={dataTable}
-                    isPending={isPendingProducts}
+                    isPending={isPendingProducts || isPendingDeletedMany || isPendingDeleted}
+                    handleDeleteMany= {handleDeleteManyProducts}
                     onRow={(record, rowIndex) => {
                         return {
                         onClick: () => {

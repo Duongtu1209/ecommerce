@@ -67,10 +67,28 @@ export const AdminUser = () => {
         }
     );
 
+    const mutationDeleteMany = useMutationHook(
+        (data) => {            
+            const {token, ...ids} = data            
+            const res = UserService.deleteManyUser(ids, token)
+            return res
+        }
+    );
+
     const { data, isPending, isSuccess, isError } = mutation;
     const { data: dataUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate;
     const { data: dataDeleted, isPending: isPendingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete;
+    const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany;
 
+
+    const handleDeleteManyUsers = (ids) => {
+        mutationDeleteMany.mutate({ids: ids, token: user?.access_token}, {
+            onSuccess: () => {
+                queryUser.refetch()
+            }
+        })
+
+    } 
 
     const queryUser = useQuery({
         queryKey: ['users'],
@@ -112,6 +130,17 @@ export const AdminUser = () => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSuccessDeleted, isErrorDeleted]);
+
+     useEffect(() => {
+        if (isSuccessDeletedMany && dataDeletedMany?.status === 'OK') {
+            message.success('Delete list user successfully');
+            handleCancelDelete();
+        } else if (isErrorDeletedMany) {
+            message.error('Error occurred while delete user');
+            handleCancelDelete();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSuccessDeletedMany, isErrorDeletedMany]);
 
     const fetchDetailsUser = async (id) => {
         try {
@@ -356,9 +385,9 @@ export const AdminUser = () => {
             <Button style={{ height: '150px', width: '150px', borderRadius: '6px', borderStyle: 'dashed'}} onClick={() => setIsModalOpen(true)}><PlusCircleFilled style={{ fontSize: '40px'}}/></Button>
         </div>
         <div style={{ marginTop: 20}}>
-                <TableComponent columns={columns} data={dataTable} isPending={isPendingUsers} onRow={(record, rowIndex) => {
+                <TableComponent handleDeleteMany={handleDeleteManyUsers} columns={columns} data={dataTable} isPending={isPendingUsers | isPendingDeletedMany | isPendingDeleted} onRow={(record, rowIndex) => {
                     return {
-                        onClick: event => {
+                        onClick: () => {
                             setRowSelected(record._id)
                         }, 
                     };
