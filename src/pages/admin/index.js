@@ -30,24 +30,26 @@ const Admin = () => {
         setKeySelected(key)
     }
     return (
-        <>
-            <Header isHiddenSearch isHiddenCart/>
-            <div style={{ display : 'flex',}}>
-                <Menu
-                    mode="inline"
-                    style={{
-                        width: 256,
-                        height: '100vh',
-                        boxShadow: '1px 1px 2px #ccc'
-                    }}
-                    items={items}
-                    onClick={handleOnClick}
-                />
-                <div style = {{ flex: 1, padding: '15px'}}>
-                    {renderPage(keySelected)}
-                </div>
-            </div>
-        </>
+      <>
+        <Header isHiddenSearch isHiddenCart />
+        <div style={{ display: "flex" }}>
+          <Menu
+            mode="inline"
+            style={{
+              width: 256,
+              height: "100%",
+              border: 'none'
+            }}
+            items={items}
+            onClick={handleOnClick}
+          />
+          <div
+            style={{ flex: 1, padding: "15px", borderLeft: '1px solid #ccc', minHeight:"100vh", height:'100%' }}
+          >
+            {renderPage(keySelected)}
+          </div>
+        </div>
+      </>
     );
 }
 

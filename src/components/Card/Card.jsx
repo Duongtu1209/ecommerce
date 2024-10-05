@@ -10,6 +10,7 @@ import {
 import official from "../../assets/images/official.png";
 import { WrapperStyleTextSell } from "../ProductDetail/style";
 import { useNavigate } from "react-router-dom";
+import { convertPrice } from "../../services/utils";
 
 const CardComponent = (props) => {
   const {
@@ -31,7 +32,7 @@ const CardComponent = (props) => {
   return (
     <WrapperCardStyle
       hoverable
-      style={{ width: 255 }}
+      style={{ width: 267 }}
       cover={
         <img
           alt="example"
@@ -63,8 +64,10 @@ const CardComponent = (props) => {
         <WrapperStyleTextSell>| Da ban {sold || 1000}+</WrapperStyleTextSell>
       </WrapperReportText>
       <WrapperPriceText>
-        <span style={{ marginRight: "8px" }}>{price?.toLocaleString()}</span>
-        <WrapperDiscountText>{discount || 5}%</WrapperDiscountText>
+        <span style={{ marginRight: "8px" }}>{convertPrice(price)}</span>
+        {discount > 0 && (
+          <WrapperDiscountText>{discount}%</WrapperDiscountText>
+        )}
       </WrapperPriceText>
     </WrapperCardStyle>
   );

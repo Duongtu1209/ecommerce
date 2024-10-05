@@ -21,6 +21,7 @@ import Loading from "../Loading/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addItem } from "../../redux/sliders/cartSlider";
+import { convertPrice } from "../../services/utils";
 
 const ProductDetailComponent = ({ id }) => {
   const [quantity, setQuantity] = useState(1);
@@ -69,6 +70,7 @@ const ProductDetailComponent = ({ id }) => {
             image: productDetails?.image,
             price: productDetails?.price,
             product: productDetails?._id,
+            discount: productDetails?.discount
           },
         })
       );
@@ -147,7 +149,7 @@ const ProductDetailComponent = ({ id }) => {
           </div>
           <WrapperPriceProduct>
             <WrapperPriceTextProduct>
-              {productDetails?.price?.toLocaleString()}
+              {convertPrice(productDetails?.price)}
             </WrapperPriceTextProduct>
           </WrapperPriceProduct>
           <WrapperAddressProduct

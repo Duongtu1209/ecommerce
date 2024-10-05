@@ -3,6 +3,13 @@ import { axiosJWT } from "./UserService";
 
 export const getAllProduct = async (search, limit) => {
   let res = {};
+  console.log(isNaN(limit), isNaN(search));
+  
+  if (isNaN(limit) && isNaN(search)) {
+    res = await axios.get(
+      `${process.env.REACT_APP_URL_BACKEND}/product/get-all`
+    );
+  }
   if (search?.length > 0) {
     res = await axios.get(
       `${process.env.REACT_APP_URL_BACKEND}/product/get-all?filter=name&filter=${search}&limit=${limit}`
@@ -82,6 +89,13 @@ export const deleteManyProduct = async (data, access_token) => {
 export const getAllTypeProduct = async () => {
   const res = await axios.get(
     `${process.env.REACT_APP_URL_BACKEND}/product/get-all-type`
+  );
+  return res.data;
+};
+
+export const getAllOrigin = async () => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_URL_BACKEND}/product/get-all-origin`
   );
   return res.data;
 };

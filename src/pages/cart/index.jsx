@@ -1,5 +1,5 @@
 import { Checkbox, message } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ButtonComponent from "../../components/Button/Button";
 import {
   WrapperCountOrder,
@@ -7,7 +7,6 @@ import {
   WrapperItemOrder,
   WrapperLeft,
   WrapperListOrder,
-  WrapperPriceDiscount,
   WrapperRight,
   WrapperStyleHeader,
   WrapperTotal,
@@ -20,7 +19,25 @@ import {
   increaseQuantity,
   removeAll,
   removeItem,
+  selectedCart,
 } from "../../redux/sliders/cartSlider";
+import { convertPrice } from "../../services/utils";
+
+
+const calculateShippingFee = (totalPrice) => {
+  const shippingFees = [
+    { minPrice: 1, maxPrice: 5000000, fee: 50000 }, 
+    { minPrice: 5000001, maxPrice: 10000000, fee: 30000 },
+    { minPrice: 10000001, maxPrice: 20000000, fee: 20000 },
+    { minPrice: 20000001, maxPrice: Infinity, fee: 0 }, 
+  ];
+
+  const applicableFee = shippingFees.find(
+    (fee) => totalPrice >= fee.minPrice && totalPrice <= fee.maxPrice
+  );
+
+  return applicableFee ? applicableFee.fee : 0;
+};
 
 const Cart = () => {
   const cart = useSelector((state) => state?.cart);
@@ -64,6 +81,35 @@ const Cart = () => {
     }
   };
 
+  useEffect(() => {
+    dispatch(selectedCart({ids : listChecked})) 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listChecked])
+
+  const subTotal = useMemo(() => {
+    const result = cart?.cartItemsSelected?.reduce((total, cur) => {
+      return total + cur?.price * cur?.quantity;
+    }, 0);
+    return result;
+  }, [cart]);
+
+  const totalDiscount = useMemo(() => {
+    const result = cart?.cartItemsSelected?.reduce((total, cur) => {
+      const itemDiscount = (cur?.price * cur?.discount * cur?.quantity) / 100;
+      return total + itemDiscount;
+    }, 0);
+    return result || 0;
+  }, [cart]);
+
+  const grandTotal = useMemo(() => {
+    return subTotal - totalDiscount;
+  }, [subTotal, totalDiscount]);
+
+  const shippingFee = useMemo(
+    () => calculateShippingFee(grandTotal),
+    [grandTotal]
+  );
+
   const handleRemoveAll = () => {
     if (listChecked?.length > 0) {
       dispatch(removeAll({ ids: listChecked }));
@@ -85,7 +131,7 @@ const Cart = () => {
         <div style={{ display: "flex", justifyContent: "flex-start" }}>
           <WrapperLeft>
             <WrapperStyleHeader>
-              <span style={{ display: "inline-block", width: 600 }}>
+              <span style={{ display: "inline-block", width: 500 }}>
                 <Checkbox
                   onChange={handleOnChangeCheckAll}
                   checked={listChecked?.length === cart?.cartItems?.length}
@@ -115,11 +161,10 @@ const Cart = () => {
                   <WrapperItemOrder>
                     <div
                       style={{
-                        width: 600,
+                        width: 500,
                         display: "flex",
                         alignItems: "center",
                         gap: 4,
-                        marginRight: 10,
                       }}
                     >
                       <Checkbox
@@ -143,9 +188,6 @@ const Cart = () => {
                         style={{
                           marginRight: 20,
                           width: "calc(100% - 100px)",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
                         }}
                       >
                         {item?.name}
@@ -159,10 +201,31 @@ const Cart = () => {
                         justifyContent: "space-between",
                       }}
                     >
-                      <span>
-                        <span style={{ fontSize: 13, color: "#252525" }}>
-                          {item?.price?.toLocaleString()}
-                        </span>
+                      <span
+                        style={{ display: "flex", flexDirection: "column" }}
+                      >
+                        {item?.discount > 0 ? (
+                          <>
+                            <span style={{ fontSize: 15, color: "#252525" }}>
+                              {convertPrice(
+                                item?.price * (1 - item?.discount / 100)
+                              )}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 15,
+                                color: "#252525",
+                                textDecoration: "line-through",
+                              }}
+                            >
+                              {convertPrice(item?.price)}
+                            </span>
+                          </>
+                        ) : (
+                          <span style={{ fontSize: 15, color: "#252525" }}>
+                            {convertPrice(item?.price)}
+                          </span>
+                        )}
                       </span>
                       <WrapperCountOrder>
                         <button
@@ -197,13 +260,45 @@ const Cart = () => {
                         </button>
                       </WrapperCountOrder>
                       <span
-                        style={{
-                          color: "rgb(255, 66, 78)",
-                          fontSize: 13,
-                          fontWeight: 500,
-                        }}
+                        style={{ display: "flex", flexDirection: "column" }}
                       >
-                        {(item?.price * item?.quantity)?.toLocaleString}
+                        {item?.discount > 0 ? (
+                          <>
+                            <span
+                              style={{
+                                fontSize: 15,
+                                color: "rgb(255, 66, 78)",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {convertPrice(
+                                item?.price *
+                                  item?.quantity *
+                                  (1 - item?.discount / 100)
+                              )}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 15,
+                                color: "rgb(255, 66, 78)",
+                                fontWeight: 500,
+                                textDecoration: "line-through",
+                              }}
+                            >
+                              {convertPrice(item?.price * item?.quantity)}
+                            </span>
+                          </>
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: 15,
+                              color: "rgb(255, 66, 78)",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {convertPrice(item?.price * item?.quantity)}
+                          </span>
+                        )}
                       </span>
                       <DeleteOutlined
                         style={{ cursor: "pointer" }}
@@ -227,8 +322,10 @@ const Cart = () => {
                 >
                   <span>Tạm tính</span>
                   <span
-                    style={{ color: "#000", fontSize: 14, fontWeight: "bold" }}
-                  ></span>
+                    style={{ color: "#000", fontSize: 15, fontWeight: "bold" }}
+                  >
+                    {convertPrice(subTotal)}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -237,22 +334,16 @@ const Cart = () => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <span> Giảm giá</span>
+                  <span> Giảm giá </span>
                   <span
-                    style={{ color: "#000", fontSize: 14, fontWeight: "bold" }}
-                  ></span>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <span> Thuế </span>
-                  <span
-                    style={{ color: "#000", fontSize: 14, fontWeight: "bold" }}
-                  ></span>
+                    style={{
+                      color: "rgb(255, 66, 78)",
+                      fontSize: 15,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {convertPrice(totalDiscount)}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -265,15 +356,21 @@ const Cart = () => {
                   <span
                     style={{ color: "#000", fontSize: 14, fontWeight: "bold" }}
                   >
-                    0
+                    {convertPrice(shippingFee)}
                   </span>
                 </div>
               </WrapperInfo>
               <WrapperTotal>
                 <span>Tổng tiền</span>
                 <span style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ color: "rgb(254, 56, 52)", fontSize: 24 }}>
-                    500
+                  <span
+                    style={{
+                      color: "rgb(254, 56, 52)",
+                      fontSize: 24,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {convertPrice(grandTotal)}
                   </span>
                   <span style={{ color: "#000", fontSize: 11 }}>
                     (Đã bao gồm VAT nếu có)
@@ -281,17 +378,22 @@ const Cart = () => {
                 </span>
               </WrapperTotal>
             </div>
-            <ButtonComponent
-              size={40}
-              styleButton={{
-                background: "rgb(255, 57, 69)",
-                height: 48,
-                width: 220,
-                border: "none",
-                borderRadius: 4,
-              }}
-              textbutton="Thanh Toán"
-            ></ButtonComponent>
+            <div style={{ width: '100%' }}>
+              <ButtonComponent
+                size={40}
+                styleButton={{
+                  background: "rgb(255, 57, 69)",
+                  height: 48,
+                  width: '100%',
+                  border: "none",
+                  borderRadius: 4,
+                  fontWeight: "bold",
+                  color: "#fff",
+                  textTransform: "uppercase",
+                }}
+                textbutton="Thanh Toán"
+              />
+            </div>
           </WrapperRight>
         </div>
       </div>

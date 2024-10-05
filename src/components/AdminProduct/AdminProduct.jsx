@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { WrapperHeader, WrapperUploadFile } from "./style";
-import { Button, Form, Input, message, Select, Space } from "antd";
+import { WrapperHeader, WrapperInputDiscount, WrapperInputNumber, WrapperInputPrice, WrapperUploadFile } from "./style";
+import { Button, Form, Input, message, Select, Space, InputNumber } from "antd";
 import {
   PlusCircleFilled,
   DeleteOutlined,
@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import TableComponent from "../Table/Table";
 import InputComponent from "../Input/Input";
-import { getBase64, renderOptions } from "../../services/utils";
+import { convertPrice, getBase64, renderOptions } from "../../services/utils";
 import { useMutationHook } from "../../hooks/useMutationHook";
 import * as ProductService from "../../services/ProductService";
 import Loading from "../Loading/Loading";
@@ -35,7 +35,8 @@ export const AdminProduct = () => {
     quantity: "",
     image: "",
     type: "",
-    newType:"",
+    discount: "",
+    newType: "",
   });
 
   const [stateProductDetails, setStateProductDetails] = useState({
@@ -47,7 +48,8 @@ export const AdminProduct = () => {
     quantity: "",
     image: "",
     type: "",
-    newType: ''
+    discount: "",
+    newType: "",
   });
 
   const [createProductForm] = Form.useForm();
@@ -64,7 +66,7 @@ export const AdminProduct = () => {
   });
 
   const getAllProducts = async () => {
-    const res = await ProductService.getAllProduct('', 100000000000000);
+    const res = await ProductService.getAllOrigin();
     return res;
   };
 
@@ -240,6 +242,7 @@ export const AdminProduct = () => {
       rating: stateProduct.rating,
       quantity: stateProduct.quantity,
       image: stateProduct.image,
+      discount: stateProduct.discount,
       type:
         stateProduct.type === "add_type"
           ? stateProduct.newType
@@ -402,6 +405,7 @@ export const AdminProduct = () => {
       title: "Price",
       dataIndex: "price",
       sorter: (a, b) => a.price.length - b.price.length,
+      render: (price) => convertPrice(price)
     },
     {
       title: "Rating",
@@ -411,6 +415,7 @@ export const AdminProduct = () => {
     {
       title: "Discount",
       dataIndex: "discount",
+      render: (discount) => `${discount}%`
     },
     {
       title: "Action",
@@ -434,6 +439,7 @@ export const AdminProduct = () => {
       rating: stateProductDetails.rating,
       quantity: stateProductDetails.quantity,
       image: stateProductDetails.image,
+      discount: stateProductDetails.discount,
       type:
         stateProductDetails.type === "add_type"
           ? stateProductDetails.newType
@@ -588,9 +594,13 @@ export const AdminProduct = () => {
                 },
               ]}
             >
-              <InputComponent
+              <InputNumber
+                min={0}
                 value={stateProduct.quantity}
-                onChange={handleInputChange}
+                onChange={(value) =>
+                  setStateProduct((prev) => ({ ...prev, quantity: value }))
+                }
+                style={{ width: "100%" }}
                 name="quantity"
               />
             </Form.Item>
@@ -600,10 +610,30 @@ export const AdminProduct = () => {
               name="price"
               rules={[{ required: true, message: "Please input your price!" }]}
             >
-              <InputComponent
+              <WrapperInputPrice
+                min={0}
                 value={stateProduct.price}
-                onChange={handleInputChange}
+                onChange={(value) =>
+                  setStateProduct((prev) => ({ ...prev, price: value }))
+                }
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                }
+                parser={(value) => value.replace(/\.\s?|(\.*)/g, "")}
+                style={{ width: "100%" }}
                 name="price"
+              />
+            </Form.Item>
+
+            <Form.Item label="Discount" name="discount">
+              <WrapperInputDiscount
+                className="discount-field"
+                value={stateProduct.discount}
+                onChange={(value) =>
+                  setStateProduct((prev) => ({ ...prev, discount: value }))
+                }
+                style={{ width: "100%" }}
+                name="discount"
               />
             </Form.Item>
 
@@ -616,9 +646,14 @@ export const AdminProduct = () => {
             </Form.Item>
 
             <Form.Item label="Rating" name="rating">
-              <InputComponent
+              <InputNumber
+                min={0}
+                max={5}
+                step={0.1}
                 value={stateProduct.rating}
-                onChange={handleInputChange}
+                onChange={(value) =>
+                  setStateProduct((prev) => ({ ...prev, discount: value }))
+                }
                 name="rating"
               />
             </Form.Item>
@@ -726,9 +761,16 @@ export const AdminProduct = () => {
                 },
               ]}
             >
-              <InputComponent
+              <InputNumber
+                min={0}
                 value={stateProductDetails.quantity}
-                onChange={handleInputChangeDetails}
+                onChange={(value) =>
+                  setStateProductDetails((prev) => ({
+                    ...prev,
+                    quantity: value,
+                  }))
+                }
+                style={{ width: "100%" }}
                 name="quantity"
               />
             </Form.Item>
@@ -736,12 +778,42 @@ export const AdminProduct = () => {
             <Form.Item
               label="Price"
               name="price"
-              rules={[{ required: true, message: "Please input your price!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your price!",
+                },
+              ]}
             >
-              <InputComponent
+              <WrapperInputPrice
+                min={0}
                 value={stateProductDetails.price}
-                onChange={handleInputChangeDetails}
+                onChange={(value) =>
+                  setStateProductDetails((prev) => ({
+                    ...prev,
+                    price: value,
+                  }))
+                }
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                }
+                parser={(value) => value.replace(/\.\s?|(\.*)/g, "")}
+                style={{ width: "100%" }}
                 name="price"
+              />
+            </Form.Item>
+            <Form.Item label="Discount" name="discount">
+              <WrapperInputDiscount
+                value={stateProductDetails.discount}
+                onChange={(value) =>
+                  setStateProductDetails((prev) => ({
+                    ...prev,
+                    discount: value,
+                  }))
+                }
+                style={{ width: "100%" }}
+                className="discount-field"
+                name="discount"
               />
             </Form.Item>
 
@@ -754,9 +826,16 @@ export const AdminProduct = () => {
             </Form.Item>
 
             <Form.Item label="Rating" name="rating">
-              <InputComponent
+              <InputNumber
+                min={0}
+                max={5}
                 value={stateProductDetails.rating}
-                onChange={handleInputChangeDetails}
+                onChange={(value) =>
+                  setStateProductDetails((prev) => ({
+                    ...prev,
+                    rating: value,
+                  }))
+                }
                 name="rating"
               />
             </Form.Item>

@@ -2,7 +2,7 @@ import { Card } from "antd";
 import styled from "styled-components";
 
 export const WrapperCardStyle = styled(Card)`
-    width: 255px;
+    width: 272px;
     position: relative;
     .ant-card-cover {
         height: 200px;
