@@ -74,7 +74,7 @@ const Home = () => {
                 type={product.type}
                 rating={product.rating}
                 discount={product.discount}
-                selled={product.selled}
+                sold={product.sold}
                 id={product._id}
               />
             );

@@ -23,7 +23,7 @@ import { searchProduct } from "../../redux/sliders/productSlider";
 const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const nav = useNavigate();
   const user = useSelector((state) => state.user);
-  const order = useSelector((state) => state?.order);
+  const cart = useSelector((state) => state?.cart);
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
   const dispatch = useDispatch();
@@ -147,8 +147,13 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
           </Loading>
 
           {!isHiddenCart && (
-            <div style={{ cursor: "pointer" }}>
-              <Badge size="small" count={order?.orderItems?.length}>
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                nav("/checkout/cart");
+              }}
+            >
+              <Badge size="small" count={cart?.cartItems?.length}>
                 <ShoppingCartOutlined
                   style={{ fontSize: "30px", color: "#fff" }}
                 />

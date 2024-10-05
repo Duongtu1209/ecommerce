@@ -16,7 +16,7 @@ const TypeProductPage = () => {
   const { type } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [panigate, setPanigate] = useState({
+  const [paginate, setPaginate] = useState({
     page: 0,
     limit: 10,
     total: 1,
@@ -31,18 +31,15 @@ const TypeProductPage = () => {
     const res = await ProductService.getProductType(productType, page, limit);
     if (res?.status === "OK") {
       setProducts(res?.data);
-      setPanigate((prev) => ({ ...prev, total: res?.data?.length }));
+      setPaginate((prev) => ({ ...prev, total: res?.data?.length }));
     }
     setLoading(false);
   };
 
-  console.log(state, normalizeType(type));
-  
-
   useEffect(() => {
     const productType = state || normalizeType(type);
     if (productType) {
-      fetchProductType(productType, panigate.page, panigate.limit);
+      fetchProductType(productType, paginate.page, paginate.limit);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, type]);
@@ -50,13 +47,13 @@ const TypeProductPage = () => {
   useEffect(() => {
     const productType = state || normalizeType(type);
     if (productType) {
-      fetchProductType(productType, panigate.page, panigate.limit);
+      fetchProductType(productType, paginate.page, paginate.limit);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [panigate.page, panigate.limit]);
+  }, [paginate.page, paginate.limit]);
 
   const onChange = (current, pageSize) => {
-    setPanigate({ ...panigate, page: current, limit: pageSize });
+    setPaginate({ ...paginate, page: current, limit: pageSize });
   };
 
   return (
@@ -121,15 +118,15 @@ const TypeProductPage = () => {
                         type={product.type}
                         rating={product.rating}
                         discount={product.discount}
-                        selled={product.selled}
+                        sold={product.sold}
                         id={product._id}
                       />
                     );
                   })}
               </WrapperProducts>
               <Pagination
-                current={panigate?.page}
-                total={panigate?.total}
+                current={paginate?.page}
+                total={paginate?.total}
                 onChange={onChange}
                 style={{ textAlign: "center", marginTop: "10px" }}
               />

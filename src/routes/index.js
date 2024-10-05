@@ -1,6 +1,6 @@
 import Error404 from "../pages/404";
 import Home from "../pages/home";
-import Order from "../pages/order";
+import Cart from "../pages/cart";
 import Product from "../pages/products";
 import SignIn from "../pages/signIn";
 import SignUp from "../pages/signUp";
@@ -16,8 +16,8 @@ export const routes = [
     isShowheader: true,
   },
   {
-    path: "/order",
-    page: Order,
+    path: "/checkout/cart",
+    page: Cart,
     isShowheader: true,
   },
   {

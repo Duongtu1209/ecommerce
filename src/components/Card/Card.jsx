@@ -12,7 +12,18 @@ import { WrapperStyleTextSell } from "../ProductDetail/style";
 import { useNavigate } from "react-router-dom";
 
 const CardComponent = (props) => {
-  const {quantity, description, image, name, price, rating, discount, selled, type, id} = props
+  const {
+    quantity,
+    description,
+    image,
+    name,
+    price,
+    rating,
+    discount,
+    sold,
+    type,
+    id,
+  } = props;
   const navigate = useNavigate()
   const handleDetailsProduct = (id) => {
     navigate(`/product-detail/${id}`)
@@ -20,13 +31,13 @@ const CardComponent = (props) => {
   return (
     <WrapperCardStyle
       hoverable
-      style={{ width: 255, }}
+      style={{ width: 255 }}
       cover={
         <img
           alt="example"
-          src={ image }
+          src={image}
           height={200}
-          style={{ objectFit:'contain'}}
+          style={{ objectFit: "contain" }}
         />
       }
       onClick={() => handleDetailsProduct(id)}
@@ -49,10 +60,10 @@ const CardComponent = (props) => {
           <span>{rating}</span>
           <StarFilled style={{ fontSize: 12, color: "yellow" }} />
         </span>
-        <WrapperStyleTextSell>| Da ban {selled || 1000}+</WrapperStyleTextSell>
+        <WrapperStyleTextSell>| Da ban {sold || 1000}+</WrapperStyleTextSell>
       </WrapperReportText>
       <WrapperPriceText>
-        <span style={{ marginRight: '8px'}}>{price?.toLocaleString()}</span>
+        <span style={{ marginRight: "8px" }}>{price?.toLocaleString()}</span>
         <WrapperDiscountText>{discount || 5}%</WrapperDiscountText>
       </WrapperPriceText>
     </WrapperCardStyle>

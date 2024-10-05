@@ -1,6 +1,5 @@
 import { Col, Image, message, Rate, Row } from "antd";
 import React, { useState } from "react";
-import imageProduct from "../../assets/images/thumbnail.webp";
 import imageSmall from "../../assets/images/thumbnailSmall.webp";
 import {
   WrapperStyleColImage,
@@ -21,20 +20,20 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "../Loading/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addItem } from "../../redux/sliders/orderSlider";
+import { addItem } from "../../redux/sliders/cartSlider";
 
 const ProductDetailComponent = ({ id }) => {
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state?.user)
+  const user = useSelector((state) => state?.user);
   const onChange = (value) => {
     setQuantity(Number(value));
   };
   const fetchDetailsProduct = async (context) => {
     const id = context?.queryKey && context?.queryKey[1];
-    if (id ){
+    if (id) {
       const res = await ProductService.getDetailsProduct(id);
       return res?.data;
     }
@@ -50,7 +49,7 @@ const ProductDetailComponent = ({ id }) => {
     if (type === "increase") {
       setQuantity((prev) => prev + 1);
     } else {
-      if(quantity <= 1) {
+      if (quantity <= 1) {
         message.error("Số lượng sản phẩm không thể nhỏ hơn 1");
       } else {
         setQuantity((prev) => prev - 1);
@@ -58,21 +57,23 @@ const ProductDetailComponent = ({ id }) => {
     }
   };
 
-  const handleAddToCart = () => {    
-    if (!user?._id) {      
-      navigate('/sign-in', {state: location?.pathname})
+  const handleAddToCart = () => {
+    if (!user?._id) {
+      navigate("/sign-in", { state: location?.pathname });
     } else {
-      dispatch(addItem({
-        orderItem: {
-          name: productDetails?.name,
-          quantity: productDetails?.quantity,
-          image: productDetails?.image,
-          price: productDetails?.price,
-          product: productDetails?._id  
-        }
-      }));
+      dispatch(
+        addItem({
+          cartItem: {
+            name: productDetails?.name,
+            quantity: quantity,
+            image: productDetails?.image,
+            price: productDetails?.price,
+            product: productDetails?._id,
+          },
+        })
+      );
     }
-  }
+  };
 
   return (
     <Loading isPending={isPending}>
@@ -158,9 +159,7 @@ const ProductDetailComponent = ({ id }) => {
           >
             <div>
               <span> Giao đến </span>
-              <span className="address">
-                {user?.address}
-              </span>
+              <span className="address">{user?.address}</span>
             </div>
             <div>
               <span className="change-address">Đổi</span>
