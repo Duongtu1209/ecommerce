@@ -17,7 +17,7 @@ const Order = ({count = 1}) => {
           height: "100%",
         }}
       >
-        {/* <div style={{ height: "100%", width: "1600", margin: "0 auto" }}>
+        <div style={{ height: "100%", width: "1600", margin: "0 auto" }}>
           <h3>Gio hang</h3>
           <div style={{ display: "flex", justifyContent: "content" }}>
             <WrapperLeft>
@@ -37,12 +37,21 @@ const Order = ({count = 1}) => {
                   <span>Don gia</span>
                   <span>So Luong</span>
                   <span>Thanh tien</span>
-                  <DeleteOutlined style={{cursor: 'pointer'}}/>
+                  <DeleteOutlined style={{ cursor: "pointer" }} />
                 </div>
               </WrapperStyleHeader>
+              <WrapperListOrder>
+                <WrapperItemOrder>
+                  <div style={{ width: 390, display: 'flex', alignItems: 'center', gap: 4}}>
+                    <Checkbox onChange={onChange}></Checkbox>
+                    <img src={imag} style={{ width: 77, height: 79, objectFit:'cover'}}/>
+                    <div></div>
+                  </div>
+                </WrapperItemOrder>
+              </WrapperListOrder>
             </WrapperLeft>
           </div>
-        </div> */}
+        </div>
       </div>
     );
 }
