@@ -3,7 +3,6 @@ import { axiosJWT } from "./UserService";
 
 export const getAllProduct = async (search, limit) => {
   let res = {};
-  console.log(isNaN(limit), isNaN(search));
   
   if (isNaN(limit) && isNaN(search)) {
     res = await axios.get(

@@ -42,7 +42,7 @@ const SignUp = () => {
       message.success();
       handleNavigateSignIn();
     } else if (isError) {
-      message.error();
+      message.error(data?.message);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess, isError]);

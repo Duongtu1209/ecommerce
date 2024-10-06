@@ -1,6 +1,6 @@
-import { Checkbox, message } from "antd";
+import { Checkbox, Form, message } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
-import ButtonComponent from "../../components/Button/Button";
+import ButtonComponent from "../../../components/Button/Button";
 import {
   WrapperCountOrder,
   WrapperInfo,
@@ -10,9 +10,9 @@ import {
   WrapperRight,
   WrapperStyleHeader,
   WrapperTotal,
-} from "./style";
+} from "../style";
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { WrapperInputNumber } from "../../components/ProductDetail/style";
+import { WrapperInputNumber } from "../../../components/ProductDetail/style";
 import { useDispatch, useSelector } from "react-redux";
 import {
   decreaseQuantity,
@@ -20,16 +20,22 @@ import {
   removeAll,
   removeItem,
   selectedCart,
-} from "../../redux/sliders/cartSlider";
-import { convertPrice } from "../../services/utils";
-
+} from "../../../redux/sliders/cartSlider";
+import { convertPrice } from "../../../services/utils";
+import { ModalComponent } from "../../../components/Modal/Modal";
+import InputComponent from "../../../components/Input/Input";
+import { useMutationHook } from "../../../hooks/useMutationHook";
+import * as UserService from "../../../services/UserService";
+import Loading from "../../../components/Loading/Loading";
+import { updateUser } from "../../../redux/sliders/userSlider";
+import { useNavigate } from "react-router-dom";
 
 const calculateShippingFee = (totalPrice) => {
   const shippingFees = [
-    { minPrice: 1, maxPrice: 5000000, fee: 50000 }, 
+    { minPrice: 1, maxPrice: 5000000, fee: 50000 },
     { minPrice: 5000001, maxPrice: 10000000, fee: 30000 },
     { minPrice: 10000001, maxPrice: 20000000, fee: 20000 },
-    { minPrice: 20000001, maxPrice: Infinity, fee: 0 }, 
+    { minPrice: 20000001, maxPrice: Infinity, fee: 0 },
   ];
 
   const applicableFee = shippingFees.find(
@@ -38,10 +44,24 @@ const calculateShippingFee = (totalPrice) => {
 
   return applicableFee ? applicableFee.fee : 0;
 };
-
 const Cart = () => {
   const cart = useSelector((state) => state?.cart);
+  const user = useSelector((state) => state?.user);
+  const [isModalUpdateInfo, setIsModalUpdateInfo] = useState(false);
   const [listChecked, setListChecked] = useState([]);
+  const navigate = useNavigate();
+  const [stateUserDetails, setStateUserDetails] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    isAdmin: false,
+    address: "",
+    avatar: "",
+    city: "",
+    image: "",
+  });
+  const [form] = Form.useForm();
+
   const onChange = (e) => {
     if (listChecked.includes(e.target.value)) {
       const newListChecked = listChecked.filter(
@@ -82,9 +102,27 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    dispatch(selectedCart({ids : listChecked})) 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listChecked])
+    dispatch(selectedCart({ ids: listChecked }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listChecked]);
+
+  useEffect(() => {
+    form.setFieldsValue(stateUserDetails);
+  }, [form, stateUserDetails]);
+
+  useEffect(() => {
+    if (isModalUpdateInfo) {
+      setStateUserDetails({
+        ...user,
+        email: user?.email,
+        city: user?.city,
+        name: user?.name,
+        address: user?.address,
+        phone: user?.phone,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModalUpdateInfo, user]);
 
   const subTotal = useMemo(() => {
     const result = cart?.cartItemsSelected?.reduce((total, cur) => {
@@ -116,6 +154,60 @@ const Cart = () => {
     }
   };
 
+  const mutationUpdate = useMutationHook((data) => {
+    const { id, token, ...rests } = data;
+    const res = UserService.updateUser(id, token, { ...rests });
+    return res;
+  });
+
+  const handleGoToCheckout = () => {
+    if (!cart?.cartItemsSelected?.length) {
+      message.error("Vui lòng chọn sản phẩm thanh toán");
+    } else if (!user?.phone || !user?.name || !user?.address || !user?.city) {
+      setIsModalUpdateInfo(true);
+    } else {
+      navigate("/checkout/payment");
+    }
+  };
+
+  const handleCancelUpdate = () => {
+    setStateUserDetails({
+      name: "",
+      email: "",
+      phone: "",
+      isAdmin: false,
+      city: "",
+    });
+    form.resetFields();
+    setIsModalUpdateInfo(false);
+  };
+
+  const handleUpdateUserInfo = () => {
+    const { name, address, city, phone } = stateUserDetails;
+    if (name && address && city && phone) {
+      mutationUpdate.mutate(
+        {
+          id: user?._id,
+          token: user?.access_token,
+          ...stateUserDetails,
+        },
+        {
+          onSuccess: () => {
+            message.success("Cập nhật thông tin giao hàng thành công");
+            dispatch(updateUser({ name, address, city, phone }));
+            setIsModalUpdateInfo(false);
+          },
+        }
+      );
+    }
+  };
+  const { isPending, data } = mutationUpdate;
+
+  const handleInputChangeDetails = (e) => {
+    const { name, value } = e.target;
+    setStateUserDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div
       style={{
@@ -127,7 +219,7 @@ const Cart = () => {
       }}
     >
       <div style={{ height: "100%", width: 1600, margin: "0 auto" }}>
-        <h3>Gio hang</h3>
+        <h3>Giỏ hàng</h3>
         <div style={{ display: "flex", justifyContent: "flex-start" }}>
           <WrapperLeft>
             <WrapperStyleHeader>
@@ -313,6 +405,31 @@ const Cart = () => {
           <WrapperRight>
             <div style={{ width: "100%" }}>
               <WrapperInfo>
+                <div>
+                  <span>Địa chỉ:</span>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 20,
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "rgb(37, 37, 37)",
+                        textDecoration: "underline",
+                      }}
+                    >{`${user?.address} ${user?.city}`}</span>
+                    <span
+                      style={{ color: "rgb(10, 104, 255)", cursor: "pointer" }}
+                      onClick={() => setIsModalUpdateInfo(true)}
+                    >
+                      Đổi
+                    </span>
+                  </div>
+                </div>
+              </WrapperInfo>
+              <WrapperInfo>
                 <div
                   style={{
                     display: "flex",
@@ -378,13 +495,14 @@ const Cart = () => {
                 </span>
               </WrapperTotal>
             </div>
-            <div style={{ width: '100%' }}>
+            <div style={{ width: "100%" }}>
               <ButtonComponent
+                onClick={() => handleGoToCheckout()}
                 size={40}
                 styleButton={{
                   background: "rgb(255, 57, 69)",
                   height: 48,
-                  width: '100%',
+                  width: "100%",
                   border: "none",
                   borderRadius: 4,
                   fontWeight: "bold",
@@ -397,6 +515,82 @@ const Cart = () => {
           </WrapperRight>
         </div>
       </div>
+      <ModalComponent
+        title="Cập nhật thông tin giao hàng"
+        open={isModalUpdateInfo}
+        onCancel={handleCancelUpdate}
+        onOk={handleUpdateUserInfo}
+      >
+        <Loading isPending={isPending}>
+          <Form
+            name="basic"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            autoComplete="off"
+            form={form}
+          >
+            <Form.Item
+              label="Name"
+              name="name"
+              rules={[{ required: true, message: "Please input your name!" }]}
+            >
+              <InputComponent
+                value={stateUserDetails?.name}
+                onChange={handleInputChangeDetails}
+                name="name"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[{ required: true, message: "Please input your email!" }]}
+            >
+              <InputComponent
+                value={stateUserDetails?.email}
+                onChange={handleInputChangeDetails}
+                name="email"
+                readOnly
+                disabled
+              />
+            </Form.Item>
+            <Form.Item
+              label="Phone"
+              name="phone"
+              rules={[{ required: true, message: "Please input your phone!" }]}
+            >
+              <InputComponent
+                value={stateUserDetails?.phone}
+                onChange={handleInputChangeDetails}
+                name="phone"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Address"
+              name="address"
+              rules={[
+                { required: true, message: "Please input your address!" },
+              ]}
+            >
+              <InputComponent
+                value={stateUserDetails?.address}
+                onChange={handleInputChangeDetails}
+                name="address"
+              />
+            </Form.Item>
+            <Form.Item
+              label="City"
+              name="city"
+              rules={[{ required: true, message: "Please input your city!" }]}
+            >
+              <InputComponent
+                value={stateUserDetails?.city}
+                onChange={handleInputChangeDetails}
+                name="city"
+              />
+            </Form.Item>
+          </Form>
+        </Loading>
+      </ModalComponent>
     </div>
   );
 };

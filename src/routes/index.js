@@ -1,6 +1,8 @@
 import Error404 from "../pages/404";
 import Home from "../pages/home";
-import Cart from "../pages/cart";
+import Cart from "../pages/checkout/cart";
+import Payment from "../pages/checkout/payment";
+import OrderSuccess from "../pages/checkout/orderSuccess";
 import Product from "../pages/products";
 import SignIn from "../pages/signIn";
 import SignUp from "../pages/signUp";
@@ -18,6 +20,16 @@ export const routes = [
   {
     path: "/checkout/cart",
     page: Cart,
+    isShowheader: true,
+  },
+  {
+    path: "/checkout/payment",
+    page: Payment,
+    isShowheader: true,
+  },
+  {
+    path: "/checkout/orderSuccess",
+    page: OrderSuccess,
     isShowheader: true,
   },
   {
@@ -49,7 +61,7 @@ export const routes = [
     path: "/system/admin",
     page: Admin,
     isShowheader: false,
-    isPrivate: true
+    isPrivate: true,
   },
   {
     path: "product/:type",
