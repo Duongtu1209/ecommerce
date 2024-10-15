@@ -5,6 +5,7 @@ const initialState = {
   cartItemsSelected:[],
   shippingAddress: {},
   paymentMethod: "",
+  shippingMethod: "",
   itemsPrice: 0,
   shippingPrice: 0,
   totalPrice: 0,

@@ -10,6 +10,7 @@ import {
   WrapperRight,
   WrapperStyleHeader,
   WrapperTotal,
+  WrapperStyleHeaderDelivery,
 } from "../style";
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { WrapperInputNumber } from "../../../components/ProductDetail/style";
@@ -29,13 +30,14 @@ import * as UserService from "../../../services/UserService";
 import Loading from "../../../components/Loading/Loading";
 import { updateUser } from "../../../redux/sliders/userSlider";
 import { useNavigate } from "react-router-dom";
+import StepComponent from "../../../components/Step/Step";
 
 const calculateShippingFee = (totalPrice) => {
   const shippingFees = [
-    { minPrice: 1, maxPrice: 5000000, fee: 50000 },
-    { minPrice: 5000001, maxPrice: 10000000, fee: 30000 },
-    { minPrice: 10000001, maxPrice: 20000000, fee: 20000 },
-    { minPrice: 20000001, maxPrice: Infinity, fee: 0 },
+    { minPrice: 1, maxPrice: 4999999, fee: 50000 },
+    { minPrice: 5000000, maxPrice: 9999999, fee: 30000 },
+    { minPrice: 10000000, maxPrice: 19999999, fee: 20000 },
+    { minPrice: 20000000, maxPrice: Infinity, fee: 0 },
   ];
 
   const applicableFee = shippingFees.find(
@@ -54,7 +56,7 @@ const Cart = () => {
     name: "",
     email: "",
     phone: "",
-    isAdmin: false,
+    isAdmin: user?.isAdmin || false,
     address: "",
     avatar: "",
     city: "",
@@ -139,14 +141,11 @@ const Cart = () => {
     return result || 0;
   }, [cart]);
 
-  const grandTotal = useMemo(() => {
-    return subTotal - totalDiscount;
-  }, [subTotal, totalDiscount]);
+  const shippingFee = useMemo(() => calculateShippingFee(subTotal), [subTotal]);
 
-  const shippingFee = useMemo(
-    () => calculateShippingFee(grandTotal),
-    [grandTotal]
-  );
+  const grandTotal = useMemo(() => {
+    return subTotal - totalDiscount + shippingFee;
+  }, [subTotal, totalDiscount, shippingFee]);
 
   const handleRemoveAll = () => {
     if (listChecked?.length > 0) {
@@ -201,12 +200,31 @@ const Cart = () => {
       );
     }
   };
-  const { isPending, data } = mutationUpdate;
+  const { isPending } = mutationUpdate;
 
   const handleInputChangeDetails = (e) => {
     const { name, value } = e.target;
     setStateUserDetails((prev) => ({ ...prev, [name]: value }));
   };
+
+  const stepItems = [
+    {
+      title: "50.000 VND",
+      description: "Mua",
+    },
+    {
+      title: "30.000 VND",
+      description: "Trên 5.0000.000 VND",
+    },
+    {
+      title: "20.000 VND",
+      description: "Trên 10.000.000 VND",
+    },
+    {
+      title: "0 VND",
+      description: "Trên 20.000.000 VND",
+    },
+  ];
 
   return (
     <div
@@ -222,6 +240,20 @@ const Cart = () => {
         <h3>Giỏ hàng</h3>
         <div style={{ display: "flex", justifyContent: "flex-start" }}>
           <WrapperLeft>
+            <WrapperStyleHeaderDelivery>
+              <StepComponent
+                items={stepItems}
+                current={
+                  shippingFee === 30000 && listChecked.length > 0
+                    ? 1
+                    : shippingFee === 20000 && listChecked.length > 0
+                    ? 2
+                    : shippingFee === 0 && listChecked.length > 0
+                    ? 3
+                    : 0
+                }
+              />
+            </WrapperStyleHeaderDelivery>
             <WrapperStyleHeader>
               <span style={{ display: "inline-block", width: 500 }}>
                 <Checkbox

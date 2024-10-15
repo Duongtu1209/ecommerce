@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../../components/Navbar/Navbar";
 import { Row, Col, Pagination } from "antd";
 import CardComponent from "../../components/Card/Card";
-import { WrapperNavbar, WrapperProducts } from "./style";
+import { WrapperProducts } from "./style";
 import { useLocation, useParams } from "react-router-dom"; // Import useParams
 import * as ProductService from "../../services/ProductService";
 import Loading from "../../components/Loading/Loading";
@@ -69,8 +68,8 @@ const TypeProductPage = () => {
       >
         <div
           style={{
-            width: 1600,
-            margin: `0 auto`,
+            width: '100%',
+            padding: `0 120px`,
             height: "100%",
           }}
         >
@@ -81,15 +80,13 @@ const TypeProductPage = () => {
               height: "100%",
             }}
           >
-            <WrapperNavbar span={4}>
-              <NavBar />
-            </WrapperNavbar>
             <Col
-              span={20}
+              span={35}
               style={{
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
+                width: "100%",
                 gap: 30,
               }}
             >
@@ -97,14 +94,15 @@ const TypeProductPage = () => {
                 {products
                   ?.filter((pro) => {
                     if (searchDebounce === "") {
-                      return pro;
+                      return true;
                     } else if (
                       pro?.name
                         ?.toLowerCase()
                         .includes(searchDebounce?.toLocaleLowerCase())
                     ) {
-                      return pro;
+                      return true;
                     }
+                    return false;
                   })
                   ?.map((product) => {
                     return (

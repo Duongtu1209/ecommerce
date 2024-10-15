@@ -61,7 +61,9 @@ const ProductDetailComponent = ({ id }) => {
   const handleAddToCart = () => {
     if (!user?._id) {
       navigate("/sign-in", { state: location?.pathname });
+      message.error("Đăng nhập để thực hiện chức năng này");
     } else {
+      message.success("Thêm sản phẩm thành công");
       dispatch(
         addItem({
           cartItem: {
@@ -145,7 +147,15 @@ const ProductDetailComponent = ({ id }) => {
               value={productDetails?.rating}
               disabled
             />
-            <WrapperStyleTextSell>| Da ban 1000+</WrapperStyleTextSell>
+            <WrapperStyleTextSell>
+              {productDetails?.sold
+                ? `| Đã bán ${
+                    productDetails?.sold <= 1000
+                      ? productDetails?.sold
+                      : "1000+"
+                  }`
+                : "Chưa bán"}
+            </WrapperStyleTextSell>
           </div>
           <WrapperPriceProduct>
             <WrapperPriceTextProduct>
@@ -160,11 +170,8 @@ const ProductDetailComponent = ({ id }) => {
             }}
           >
             <div>
-              <span> Giao đến </span>
-              <span className="address">{user?.address}</span>
-            </div>
-            <div>
-              <span className="change-address">Đổi</span>
+              <span> Giao đến: </span>
+              <span className="address">{user?.address} {user?.city}</span>
             </div>
           </WrapperAddressProduct>
           <div
@@ -224,20 +231,7 @@ const ProductDetailComponent = ({ id }) => {
               }}
               styleTextButton={{ color: "#fff", fontSize: "16px" }}
               onClick={handleAddToCart}
-              textbutton={"Mua ngay"}
-            />
-            <ButtonComponent
-              bordered={false}
-              size={40}
-              styleButton={{
-                background: "#fff",
-                height: "48px",
-                width: "220px",
-                border: "1px solid rgb(10, 104, 255)",
-                borderRadius: "4px",
-              }}
-              styleTextButton={{ color: "rgb(10, 104, 255)", fontSize: "16px" }}
-              textbutton={"Mua trả góp - trả sau"}
+              textbutton={"Thêm vào giỏ hàng"}
             />
           </div>
         </Col>

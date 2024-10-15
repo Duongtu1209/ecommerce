@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { WrapperHeader, WrapperInputDiscount, WrapperInputNumber, WrapperInputPrice, WrapperUploadFile } from "./style";
+import { WrapperHeader, WrapperInputDiscount, WrapperInputPrice, WrapperUploadFile } from "./style";
 import { Button, Form, Input, message, Select, Space, InputNumber } from "antd";
 import {
   PlusCircleFilled,
@@ -26,7 +26,7 @@ export const AdminProduct = () => {
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const user = useSelector((state) => state?.user);
   const searchInput = useRef(null);
-  const [stateProduct, setStateProduct] = useState({
+  const initital = () => ({
     sku: "",
     name: "",
     price: "",
@@ -38,19 +38,8 @@ export const AdminProduct = () => {
     discount: "",
     newType: "",
   });
-
-  const [stateProductDetails, setStateProductDetails] = useState({
-    sku: "",
-    name: "",
-    price: "",
-    description: "",
-    rating: "",
-    quantity: "",
-    image: "",
-    type: "",
-    discount: "",
-    newType: "",
-  });
+  const [stateProduct, setStateProduct] = useState(initital());
+  const [stateProductDetails, setStateProductDetails] = useState(initital());
 
   const [createProductForm] = Form.useForm();
   const [updateProductForm] = Form.useForm();
@@ -205,8 +194,12 @@ export const AdminProduct = () => {
   }, [rowSelected]);
 
   useEffect(() => {
-    updateProductForm.setFieldsValue(stateProductDetails);
-  }, [updateProductForm, stateProductDetails]);
+    if (!isModalOpen) {
+      updateProductForm.setFieldsValue(stateProductDetails);
+    } else {
+      updateProductForm.setFieldsValue(initital());
+    }
+  }, [updateProductForm, stateProductDetails, isModalOpen]);
 
   const handleDetailsProduct = () => {
     setIsDrawerOpen(true);
@@ -381,7 +374,7 @@ export const AdminProduct = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên sản phẩm",
       dataIndex: "name",
       sorter: (a, b) => a.name.length - b.name.length,
       ...getColumnSearchProps("name"),
@@ -398,11 +391,11 @@ export const AdminProduct = () => {
       sorter: (a, b) => a.sku.length - b.sku.length,
     },
     {
-      title: "Quantity",
+      title: "Số lượng",
       dataIndex: "quantity",
     },
     {
-      title: "Price",
+      title: "giá gốc",
       dataIndex: "price",
       sorter: (a, b) => a.price.length - b.price.length,
       render: (price) => convertPrice(price)
@@ -413,7 +406,7 @@ export const AdminProduct = () => {
       sorter: (a, b) => a.rating.length - b.rating.length,
     },
     {
-      title: "Discount",
+      title: "Giảm giá (%)",
       dataIndex: "discount",
       render: (discount) => `${discount}%`
     },
@@ -508,7 +501,7 @@ export const AdminProduct = () => {
           isPending={
             isPendingProducts || isPendingDeletedMany || isPendingDeleted
           }
-          handleDeleteManyProducts={handleDeleteManyProducts}
+          handleDeleteMany={handleDeleteManyProducts}
           onRow={(record, rowIndex) => {
             return {
               onClick: () => {
@@ -633,6 +626,7 @@ export const AdminProduct = () => {
                   setStateProduct((prev) => ({ ...prev, discount: value }))
                 }
                 style={{ width: "100%" }}
+                max={100}
                 name="discount"
               />
             </Form.Item>
@@ -813,6 +807,7 @@ export const AdminProduct = () => {
                 }
                 style={{ width: "100%" }}
                 className="discount-field"
+                max={100}
                 name="discount"
               />
             </Form.Item>

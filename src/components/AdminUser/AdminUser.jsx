@@ -26,7 +26,7 @@ export const AdminUser = () => {
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const user = useSelector((state) => state?.user);
   const searchInput = useRef(null);
-  const [stateUser, setStateUser] = useState({
+  const initital = () => ({
     name: "",
     email: "",
     phone: "",
@@ -35,21 +35,15 @@ export const AdminUser = () => {
     avatar: "",
     city: "",
   });
-
-  const [stateUserDetails, setStateUserDetails] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    isAdmin: false,
-    address: "",
-    avatar: "",
-    city: "",
-  });
+  const [stateUser, setStateUser] = useState(initital());
+  const [stateUserDetails, setStateUserDetails] = useState(initital());
 
   const [createUserForm] = Form.useForm();
   const [updateUserForm] = Form.useForm();
 
-  const mutation = useMutationHook((data) => UserService.signUpUser(data));
+  const mutation = useMutationHook((data) =>
+    UserService.signUpUserByAdmin(data)
+  );
 
   const mutationUpdate = useMutationHook((data) => {
     const { id, token, ...rests } = data;
@@ -195,15 +189,7 @@ export const AdminUser = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
     createUserForm.resetFields();
-    setStateUser({
-      name: "",
-      email: "",
-      phone: "",
-      isAdmin: false,
-      address: "",
-      avatar: "",
-      city: "",
-    });
+    setStateUser(initital());
   };
 
   const handleCancelDrawer = () => {
@@ -345,7 +331,7 @@ export const AdminUser = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên người dùng",
       dataIndex: "name",
       sorter: (a, b) => a.name.length - b.name.length,
       ...getColumnSearchProps("name"),
@@ -356,7 +342,7 @@ export const AdminUser = () => {
       ...getColumnSearchProps("email"),
     },
     {
-      title: "Admin",
+      title: "Quản trị viên",
       dataIndex: "isAdmin",
       filters: [
         {
@@ -370,7 +356,7 @@ export const AdminUser = () => {
       ],
     },
     {
-      title: "Phone",
+      title: "Số điện thoại",
       dataIndex: "phone",
       ...getColumnSearchProps("phone"),
     },

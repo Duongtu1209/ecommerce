@@ -40,10 +40,10 @@ const SignIn = () => {
 
   const mutation = useMutationHook((data) => UserService.loginUser(data));
 
-  const { data, isPending, isSuccess } = mutation;
-
+  const { data, isPending } = mutation;
+  
   useEffect(() => {
-    if (isSuccess) {
+    if (data?.status === "OK") {
       if (state) {
         navigate(state);
       } else {
@@ -58,7 +58,7 @@ const SignIn = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccess]);
+  }, [data?.status]);
 
   const handleGetDetailsUser = async (id, token) => {
     const res = await UserService.getDetailsUser(id, token);
@@ -141,7 +141,6 @@ const SignIn = () => {
               textbutton={"Đăng nhập"}
             />
           </Loading>
-          <p className="forgot-pass">Quên mật khẩu?</p>
           <p className="create-account">
             Chưa có tài khoản?{" "}
             <span onClick={handleNavigateSignUp}>Tạo tài khoản</span>

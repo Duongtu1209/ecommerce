@@ -2,19 +2,21 @@ import { Card } from "antd";
 import styled from "styled-components";
 
 export const WrapperCardStyle = styled(Card)`
-    width: 272px;
-    position: relative;
-    .ant-card-cover {
-        height: 200px;
-        width: 100%;
-        overflow: hidden;
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
-    }
-    .ant-card-body {
-        padding: 10px
-    }
-`
+  width: 272px;
+  position: relative;
+  background-color: ${(props) => (props.disabled ? "#ccc" : "#fff")};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  .ant-card-cover {
+    height: 200px;
+    width: 100%;
+    overflow: hidden;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+  .ant-card-body {
+    padding: 10px;
+  }
+`;
 
 export const StyleNameProduct = styled.div`
     font-weight: 400;

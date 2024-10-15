@@ -44,10 +44,10 @@ export const renderOptions = (arr) => {
 }
 
 export const convertPrice = (price) => {
-  try {
-    const result = price?.toLocaleString().replaceAll(',', '.')
-    return `${result} VND`;
-  } catch (error) {
-    return null
-  }
-}
+    try {
+        const result = price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', currencyDisplay: 'code' });
+        return result.replace('VND', 'VND');
+    } catch (error) {
+        return null;
+    }
+};

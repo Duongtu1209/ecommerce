@@ -87,7 +87,7 @@ const ProfileUser = () => {
   };
   return (
     <div style={{ width: "1600px", margin: "0 auto" }}>
-      <WrapperHeader>Profile </WrapperHeader>
+      <WrapperHeader>Thông tin người dùng </WrapperHeader>
       <WrapperContentProfile>
         <WrapperInput>
           <WrapperLabel htmlFor="name">Họ và tên</WrapperLabel>

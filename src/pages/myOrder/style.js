@@ -3,14 +3,13 @@ import styled from "styled-components";
 
 export const WrapperStyleHeader = styled.div`
   background: #fff;
-  padding: 9px 16px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   span {
     color: #252525;
-    font-weight: 400;
-    font-size: 13px;
+    font-weight: 500;
+    font-size: 16px;
   }
 `;
 
@@ -50,7 +49,7 @@ export const WrapperItemOrder = styled.div`
   display: flex;
   align-items: center;
   background: #fff;
-  padding: 9px 16px;
+  padding: 16px 0;
   margin-top: 12px;
   justify-content: center:
 `;

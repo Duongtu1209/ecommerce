@@ -35,17 +35,17 @@ const SignUp = () => {
 
   const mutation = useMutationHook((data) => UserService.signUpUser(data));
 
-  const { data, isPending, isSuccess, isError } = mutation;
+  const { data, isPending, isError } = mutation;
 
   useEffect(() => {
-    if (isSuccess) {
+    if (data?.status === "OK") {
       message.success();
       handleNavigateSignIn();
     } else if (isError) {
       message.error(data?.message);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccess, isError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.status]);
 
   const handleSignUp = () => {
     mutation.mutate({

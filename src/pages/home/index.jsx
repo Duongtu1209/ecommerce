@@ -65,17 +65,17 @@ const Home = () => {
           {products?.data?.map((product) => {
             return (
               <CardComponent
-                key={product._id}
-                quantity={product.quantity}
-                description={product.description}
-                image={product.image}
-                name={product.name}
-                price={product.price}
-                type={product.type}
-                rating={product.rating}
-                discount={product.discount}
-                sold={product.sold}
-                id={product._id}
+                key={product?._id}
+                quantity={product?.quantity}
+                description={product?.description}
+                image={product?.image}
+                name={product?.name}
+                price={product?.price}
+                type={product?.type}
+                rating={product?.rating}
+                discount={product?.discount}
+                sold={product?.sold || null}
+                id={product?._id}
               />
             );
           })}

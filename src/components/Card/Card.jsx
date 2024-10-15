@@ -38,10 +38,11 @@ const CardComponent = (props) => {
           alt="example"
           src={image}
           height={200}
-          style={{ objectFit: "contain" }}
+          style={{ objectFit: "fill" }}
         />
       }
       onClick={() => handleDetailsProduct(id)}
+      disabled={quantity === 0}
     >
       <img
         src={official}
@@ -61,13 +62,13 @@ const CardComponent = (props) => {
           <span>{rating}</span>
           <StarFilled style={{ fontSize: 12, color: "yellow" }} />
         </span>
-        <WrapperStyleTextSell>| Da ban {sold || 1000}+</WrapperStyleTextSell>
+        <WrapperStyleTextSell>
+          {sold ? `| Đã bán ${sold <= 1000 ? sold : "1000+"}` : "Chưa bán"}
+        </WrapperStyleTextSell>
       </WrapperReportText>
       <WrapperPriceText>
         <span style={{ marginRight: "8px" }}>{convertPrice(price)}</span>
-        {discount > 0 && (
-          <WrapperDiscountText>{discount}%</WrapperDiscountText>
-        )}
+        {discount > 0 && <WrapperDiscountText>{discount}%</WrapperDiscountText>}
       </WrapperPriceText>
     </WrapperCardStyle>
   );

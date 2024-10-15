@@ -18,6 +18,14 @@ export const signUpUser = async (data) => {
   return res.data;
 };
 
+export const signUpUserByAdmin = async (data) => {
+  const res = await axios.post(
+    `${process.env.REACT_APP_URL_BACKEND}/user/sign-up-by-admin`,
+    data
+  );
+  return res.data;
+};
+
 export const getDetailsUser = async (id, access_token) => {    
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_URL_BACKEND}/user/get-details/${id}`,
@@ -88,5 +96,18 @@ export const deleteManyUser = async (data, access_token) => {
             },
         }
     );    
+    return res.data;
+};
+
+export const changePassword = async (id, access_token, data ) => {
+    const res = await axiosJWT.post(
+        `${process.env.REACT_APP_URL_BACKEND}/user/change-password/${id}`,
+        data,
+        {
+            headers: {
+                token: `Bearer ${access_token}`,
+            },
+        }
+    );
     return res.data;
 };

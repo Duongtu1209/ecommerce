@@ -10,6 +10,9 @@ import ProductDetail from "../pages/productDetail";
 import ProfileUser from "../pages/profile";
 import TypeProductPages from "../pages/typeProductPages";
 import Admin from "../pages/admin";
+import MyOrder from "../pages/myOrder"
+import ChangePassword from "../pages/changePassword";
+import DetailOrder from "../pages/detailOrder";
 
 export const routes = [
   {
@@ -53,8 +56,23 @@ export const routes = [
     isShowheader: true,
   },
   {
+    path: "/details-order/:id",
+    page: DetailOrder,
+    isShowheader: true,
+  },
+  {
     path: "/profile-user",
     page: ProfileUser,
+    isShowheader: true,
+  },
+  {
+    path: "/my-order",
+    page: MyOrder,
+    isShowheader: true,
+  },
+  {
+    path: "/change-password",
+    page: ChangePassword,
     isShowheader: true,
   },
   {

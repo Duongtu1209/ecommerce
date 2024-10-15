@@ -22,12 +22,13 @@ import { searchProduct } from "../../redux/sliders/productSlider";
 
 const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const nav = useNavigate();
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state?.user);
   const cart = useSelector((state) => state?.cart);
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const handleNavigateLogin = () => {
     nav("/sign-in");
   };
@@ -36,6 +37,7 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     await UserService.logoutUser();
     localStorage.clear("access_token");
     dispatch(resetUser());
+    nav("/");
     setLoading(false);
   };
 
@@ -46,19 +48,53 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     setLoading(false);
   }, [user?.name, user?.avatar]);
 
+  const handleClickNav = (type) => {
+    switch (type) {
+      case "profile":
+        nav("/profile-user");
+        break;
+      case "admin":
+        nav("/system/admin");
+        break;
+      case "my-order":
+        nav(`/my-order`, {
+          state: {
+            id: user?._id,
+            token: user?.access_token,
+          },
+        });
+        break;
+      case "logout":
+        handleLogout();
+        break;
+      case 'change-password': 
+        nav("/change-password");
+        break;
+      default:
+        break;
+    }
+    setIsOpen(false);
+  };
+
   const content = (
     <div>
-      <WrapperContentPopup onClick={handleLogout}>
-        Đăng xuất
-      </WrapperContentPopup>
-      <WrapperContentPopup onClick={() => nav("/profile-user")}>
+      <WrapperContentPopup onClick={() => handleClickNav("profile")}>
         Thông tin người dùng
       </WrapperContentPopup>
+      <WrapperContentPopup onClick={() => handleClickNav("change-password")}>
+        Đổi mật khẩu
+      </WrapperContentPopup>
       {user?.isAdmin && (
-        <WrapperContentPopup onClick={() => nav("/system/admin")}>
+        <WrapperContentPopup onClick={() => handleClickNav("admin")}>
           Quản lí hệ thống
         </WrapperContentPopup>
       )}
+      <WrapperContentPopup onClick={() => handleClickNav("my-order")}>
+        Đơn hàng của tôi
+      </WrapperContentPopup>
+      <WrapperContentPopup onClick={() => handleClickNav("logout")}>
+        Đăng xuất
+      </WrapperContentPopup>
     </div>
   );
 
@@ -69,7 +105,7 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   return (
     <div
       style={{
-        heiht: "100%",
+        height: "100%",
         width: "100%",
         display: "flex",
         background: "#4096ff",
@@ -123,8 +159,11 @@ const Header = ({ isHiddenSearch = false, isHiddenCart = false }) => {
               )}
               {user?.access_token ? (
                 <>
-                  <Popover content={content} trigger="click">
-                    <div style={{ cursor: "pointer" }}>
+                  <Popover content={content} trigger="click" open={isOpen}>
+                    <div
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setIsOpen((prev) => !prev)}
+                    >
                       {userName?.length ? userName : user?.email}
                     </div>
                   </Popover>

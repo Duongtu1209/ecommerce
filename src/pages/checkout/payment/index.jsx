@@ -100,14 +100,14 @@ const Payment = () => {
     return result || 0;
   }, [cart]);
 
-  const grandTotal = useMemo(() => {
-    return subTotal - totalDiscount;
-  }, [subTotal, totalDiscount]);
-
   const shippingFee = useMemo(
-    () => calculateShippingFee(grandTotal, delivery),
-    [grandTotal, delivery]
+    () => calculateShippingFee(subTotal, delivery),
+    [subTotal, delivery]
   );
+
+    const grandTotal = useMemo(() => {
+    return subTotal - totalDiscount + shippingFee;
+  }, [subTotal, totalDiscount, shippingFee]);
 
   const mutationUpdate = useMutationHook((data) => {
     const { id, token, ...rests } = data;
@@ -121,7 +121,7 @@ const Payment = () => {
     return res;
   });
 
-  const { isPending, data } = mutationUpdate;
+  const { isPending } = mutationUpdate;
   const {
     data: placeOrderData,
     isPending: isPendingPlaceOrder,
@@ -160,6 +160,7 @@ const Payment = () => {
         city: user?.city,
       },
       paymentMethod: payment,
+      shippingMethod: delivery,
       subTotal: subTotal,
       discountAmount: totalDiscount,
       shippingFee: shippingFee,
